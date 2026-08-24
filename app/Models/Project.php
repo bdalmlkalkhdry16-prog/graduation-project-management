@@ -129,6 +129,7 @@ class Project extends Model
     $this->update(['success_percentage' => $percentage]);
     return $percentage;
 }
+
     // ========== دوال المساعدة ==========
     public function getTitleAttribute()
     {

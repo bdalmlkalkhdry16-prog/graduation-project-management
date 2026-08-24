@@ -26,6 +26,10 @@
         font-size: 0.8rem;
         padding: 0.35rem 0.8rem;
         border-radius: 2rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
     }
     .status-badge-custom.pending {
         background: #fff3cd;
@@ -54,16 +58,37 @@
         padding: 0.4rem 1.2rem;
         font-weight: 500;
         transition: transform 0.2s, box-shadow 0.2s;
+        color: white;
     }
     .btn-request:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+    .filter-card .form-control,
+    .filter-card .form-select {
+        border-radius: 0.75rem;
+        border: 1px solid #e2e8f0;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    .filter-card .form-control:focus,
+    .filter-card .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+    }
+    .filter-card .btn-filter {
+        border-radius: 0.75rem;
+        padding: 0.4rem 1.2rem;
+        font-weight: 500;
     }
 </style>
 @endpush
 
 @section('content')
 <div class="container-fluid">
+    <!-- رأس الصفحة -->
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
         <div>
             <h2 class="fw-bold mb-0"><i class="fas fa-user-edit text-primary me-2"></i>طلبات تغيير المشرف</h2>
@@ -71,13 +96,12 @@
         </div>
         <div>
             @php
-                // الحصول على أول مشروع نشط للطالب (غير مكتمل)
                 $activeProjects = auth()->user()->projects()->where('status', '!=', 'completed')->get();
                 $canRequest = $activeProjects->count() > 0;
                 $firstActiveProject = $activeProjects->first();
             @endphp
             @if($canRequest && $firstActiveProject)
-                <a href="{{ route('supervisor-requests.create', ['project' => $firstActiveProject->id]) }}" class="btn btn-primary btn-request shadow-sm">
+                <a href="{{ route('supervisor-requests.create', ['project' => $firstActiveProject->id]) }}" class="btn btn-request shadow-sm">
                     <i class="fas fa-plus-circle me-2"></i> طلب تغيير مشرف جديد
                 </a>
             @else
@@ -144,6 +168,48 @@
         </div>
     </div>
 
+    <!-- فلترة وبحث -->
+    <div class="card filter-card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ route('supervisor-requests.index') }}" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">الحالة</label>
+                    <select name="status" class="form-select">
+                        <option value="">جميع الحالات</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>قيد الانتظار</option>
+                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>مقبول</option>
+                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>مرفوض</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">المشروع</label>
+                    <input type="text" name="search" class="form-control" placeholder="بحث في عنوان المشروع..." value="{{ request('search') }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold">المشرف المطلوب</label>
+                    <select name="proposed_supervisor_id" class="form-select">
+                        <option value="">الكل</option>
+                        @foreach($supervisors ?? [] as $supervisor)
+                            <option value="{{ $supervisor->id }}" {{ request('proposed_supervisor_id') == $supervisor->id ? 'selected' : '' }}>
+                                {{ $supervisor->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-filter w-100">
+                            <i class="fas fa-search me-1"></i> بحث
+                        </button>
+                        <a href="{{ route('supervisor-requests.index') }}" class="btn btn-outline-secondary btn-filter">
+                            <i class="fas fa-redo-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- الجدول -->
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
@@ -155,9 +221,9 @@
                             <th style="width: 12%">الطالب</th>
                             <th style="width: 12%">المشرف الحالي</th>
                             <th style="width: 12%">المشرف المطلوب</th>
-                            <th style="width: 18%">السبب</th>
+                            <th style="width: 16%">السبب</th>
                             <th style="width: 10%">الحالة</th>
-                            <th style="width: 10%">تاريخ الطلب</th>
+                            <th style="width: 12%">تاريخ الطلب</th>
                             <th style="width: 8%">الإجراءات</th>
                         </tr>
                     </thead>
@@ -173,41 +239,72 @@
                             <td>{{ $req->currentSupervisor->name }}</td>
                             <td>{{ $req->proposedSupervisor->name }}</td>
                             <td>
-                                <span class="text-muted small">{{ Str::limit($req->reason, 40) }}</span>
+                                <span class="text-muted small" data-bs-toggle="tooltip" title="{{ $req->reason }}">
+                                    {{ Str::limit($req->reason, 40) }}
+                                </span>
                             </td>
                             <td>
                                 @if($req->status == 'pending')
-                                    <span class="status-badge-custom pending"><i class="fas fa-hourglass-half me-1"></i>قيد الانتظار</span>
+                                    <span class="status-badge-custom pending"><i class="fas fa-hourglass-half"></i>قيد الانتظار</span>
                                 @elseif($req->status == 'approved')
-                                    <span class="status-badge-custom approved"><i class="fas fa-check-circle me-1"></i>مقبول</span>
+                                    <span class="status-badge-custom approved"><i class="fas fa-check-circle"></i>مقبول</span>
                                 @else
-                                    <span class="status-badge-custom rejected"><i class="fas fa-times-circle me-1"></i>مرفوض</span>
+                                    <span class="status-badge-custom rejected"><i class="fas fa-times-circle"></i>مرفوض</span>
                                 @endif
                             </td>
                             <td>
-                                <i class="far fa-calendar-alt text-muted me-1"></i>
-                                {{ $req->created_at->format('Y-m-d') }}
+                                <div class="d-flex flex-column">
+                                    <span><i class="far fa-calendar-alt text-muted me-1"></i> {{ $req->created_at->format('Y-m-d') }}</span>
+                                    <small class="text-muted">{{ $req->created_at->diffForHumans() }}</small>
+                                </div>
                             </td>
                             <td>
-                                <a href="{{ route('supervisor-requests.show', $req) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="عرض التفاصيل">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                @if($req->status == 'pending' && auth()->user()->isAdmin())
-                                    <form action="{{ route('supervisor-requests.approve', $req) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="قبول" onclick="return confirm('هل تريد قبول هذا الطلب؟')">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('supervisor-requests.reject', $req) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="رفض" onclick="return confirm('هل تريد رفض هذا الطلب؟')">
+                                <div class="d-flex gap-1">
+                                    <a href="{{ route('supervisor-requests.show', $req) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="عرض التفاصيل">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if($req->status == 'pending' && auth()->user()->isAdmin())
+                                        <form action="{{ route('supervisor-requests.approve', $req) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="قبول" onclick="return confirm('هل تريد قبول هذا الطلب؟')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $req->id }}" title="رفض">
                                             <i class="fas fa-times"></i>
                                         </button>
-                                    </form>
-                                @endif
+                                    @endif
+                                </div>
                             </td>
                         </tr>
+
+                        <!-- مودال رفض الطلب (للمدير) -->
+                        @if($req->status == 'pending' && auth()->user()->isAdmin())
+                        <div class="modal fade" id="rejectModal{{ $req->id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form action="{{ route('supervisor-requests.reject', $req) }}" method="POST">
+                                        @csrf
+                                        <div class="modal-header bg-danger text-white">
+                                            <h5 class="modal-title"><i class="fas fa-times-circle me-2"></i>رفض الطلب</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">سبب الرفض <span class="text-danger">*</span></label>
+                                                <textarea name="admin_feedback" class="form-control" rows="3" placeholder="اذكر سبب رفض الطلب..." required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                            <button type="submit" class="btn btn-danger">رفض الطلب</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         @empty
                             <tr>
                                 <td colspan="8" class="text-center py-5">
@@ -231,7 +328,7 @@
                         عرض {{ $requests->firstItem() ?? 0 }} - {{ $requests->lastItem() ?? 0 }} من إجمالي {{ $requests->total() }} طلب
                     </div>
                     <div>
-                        {{ $requests->links() }}
+                        {{ $requests->appends(request()->query())->links() }}
                     </div>
                 </div>
             @endif
