@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -154,5 +156,55 @@ class User extends Authenticatable
             'admin' => 'مدير النظام',
             default => 'غير محدد'
         };
+    }
+
+    // ========== Phase 1 — Roles & Permissions (نظام جديد، إضافي فقط) ==========
+    //
+    // كل ما يلي جديد بالكامل ولا يعدّل أو يستبدل role/isAdmin()/isSupervisor()/isStudent()
+    // أعلاه. الشخص الواحد يمكن أن يحمل أكثر من Role عبر جدول user_roles.
+
+    /**
+     * الأدوار الجديدة التي يحملها المستخدم (نظام Roles & Permissions).
+     */
+    public function newRoles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class, 'user_roles')
+            ->withPivot('department_id', 'assigned_at', 'assigned_by')
+            ->withTimestamps();
+    }
+
+    /**
+     * سجلات user_roles الخام (لعرض تفاصيل النطاق department_id لكل تعيين).
+     */
+    public function userRoles(): HasMany
+    {
+        return $this->hasMany(UserRole::class);
+    }
+
+    /**
+     * هل يحمل المستخدم دورًا معينًا (بغض النظر عن القسم)؟
+     */
+    public function hasRole(string $slug): bool
+    {
+        return $this->newRoles()->where('slug', $slug)->exists();
+    }
+
+    /**
+     * هل يملك المستخدم صلاحية معينة؟
+     * إن مُرِّر $departmentId، تُطابَق الأدوار العامة (department_id = null)
+     * أو الأدوار المحددة لنفس القسم فقط.
+     */
+    public function hasPermission(string $permissionSlug, ?int $departmentId = null): bool
+    {
+        $query = $this->userRoles()
+            ->whereHas('role.permissions', fn ($q) => $q->where('slug', $permissionSlug));
+
+        if ($departmentId !== null) {
+            $query->where(function ($q) use ($departmentId) {
+                $q->whereNull('department_id')->orWhere('department_id', $departmentId);
+            });
+        }
+
+        return $query->exists();
     }
 }

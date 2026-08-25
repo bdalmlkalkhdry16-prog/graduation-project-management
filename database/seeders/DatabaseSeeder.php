@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             ProjectSeeder::class,
             EvaluationSeeder::class,
+            // Phase 1 — Roles & Permissions (إضافة جديدة، بعد UserSeeder لأنها تعتمد عليه)
+            RolesAndPermissionsSeeder::class,
+            LegacyUserRolesDataSeeder::class,
         ]);
     }
 }

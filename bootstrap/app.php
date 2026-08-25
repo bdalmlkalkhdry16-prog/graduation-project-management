@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'supervisor' => \App\Http\Middleware\SupervisorMiddleware::class,
             'student' => \App\Http\Middleware\StudentMiddleware::class,
+            // Phase 1 — Roles & Permissions: مُسجَّل فقط، غير مستخدَم في أي Route حالي.
+            'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
 
         // إضافة middleware إلى مجموعة web إذا أردت
