@@ -21,6 +21,9 @@ class DatabaseSeeder extends Seeder
             // Phase 1 — Roles & Permissions (إضافة جديدة، بعد UserSeeder لأنها تعتمد عليه)
             RolesAndPermissionsSeeder::class,
             LegacyUserRolesDataSeeder::class,
+            // Phase 2 — Student/Faculty/Staff Central Profiles (تعتمد على Phase 1)
+            LegacyStudentProfileDataSeeder::class,
+            LegacyFacultyProfileDataSeeder::class,
         ]);
     }
 }

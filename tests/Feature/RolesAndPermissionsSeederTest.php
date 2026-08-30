@@ -13,14 +13,16 @@ class RolesAndPermissionsSeederTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function it_creates_the_three_legacy_matching_roles()
+    public function it_creates_the_legacy_matching_roles_plus_the_new_faculty_role()
     {
         $this->seed(RolesAndPermissionsSeeder::class);
 
         $this->assertDatabaseHas('roles', ['slug' => 'admin', 'is_system' => true]);
         $this->assertDatabaseHas('roles', ['slug' => 'supervisor', 'is_system' => true]);
         $this->assertDatabaseHas('roles', ['slug' => 'student', 'is_system' => true]);
-        $this->assertEquals(3, Role::count());
+        // Phase 2: دور جديد إضافي، لا يستبدل supervisor
+        $this->assertDatabaseHas('roles', ['slug' => 'faculty', 'is_system' => true]);
+        $this->assertEquals(4, Role::count());
     }
 
     /** @test */
@@ -44,7 +46,7 @@ class RolesAndPermissionsSeederTest extends TestCase
         $this->seed(RolesAndPermissionsSeeder::class);
         $this->seed(RolesAndPermissionsSeeder::class);
 
-        $this->assertEquals(3, Role::count());
+        $this->assertEquals(4, Role::count());
         $this->assertEquals(Permission::count(), Permission::distinct('slug')->count('slug'));
     }
 }

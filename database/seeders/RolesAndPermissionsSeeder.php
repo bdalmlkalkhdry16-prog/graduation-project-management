@@ -7,11 +7,12 @@ use App\Models\Role;
 use Illuminate\Database\Seeder;
 
 /**
- * Phase 1 — Roles & Permissions.
+ * Phase 1 — Roles & Permissions (أساس)، مُوسَّع في Phase 2
+ * بإضافة دور "faculty" وصلاحيات الملفات الشخصية.
  *
- * يُنشئ فقط الأدوار الثلاثة المطابقة تمامًا للنظام القديم (admin/supervisor/student)
- * ومجموعة صلاحيات ابتدائية تمثيلية تعكس ما يفعله النظام القديم فعليًا اليوم.
- * ليست قائمة شاملة — كل Module جديدة تضيف صلاحياتها عند بنائها لاحقًا.
+ * الأدوار الثلاثة الأصلية (admin/supervisor/student) تطابق تمامًا
+ * النظام القديم. "faculty" دور جديد إضافي (لا يستبدل supervisor).
+ * ليست قائمة صلاحيات شاملة — كل Module جديدة تضيف صلاحياتها عند بنائها.
  *
  * Idempotent بالكامل: يمكن تشغيله أكثر من مرة بأمان (updateOrCreate).
  */
@@ -43,6 +44,20 @@ class RolesAndPermissionsSeeder extends Seeder
                     'ideas.submitOwn',
                     'project-files.uploadOwn',
                     'comments.createOwn',
+                    // Phase 2
+                    'student-profiles.viewOwn',
+                ],
+            ],
+            // Phase 2 — Student/Faculty/Staff Central Profiles.
+            // دور جديد منفصل عن "supervisor" وليس بديلاً له: كل مستخدم
+            // supervisor في النظام القديم يحصل أيضًا على هذا الدور بجانب
+            // دوره القديم (الشخص يحمل أكثر من Role)، لأن "المشرف = عضو
+            // هيئة تدريس" حسب القرار المعتمد.
+            'faculty' => [
+                'name' => 'عضو هيئة تدريس',
+                'description' => 'عضو هيئة تدريس (يشمل من كان "مشرف" في نظام مشاريع التخرج القديم)',
+                'permissions' => [
+                    'faculty-profiles.viewOwn',
                 ],
             ],
         ];

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -206,5 +207,32 @@ class User extends Authenticatable
         }
 
         return $query->exists();
+    }
+
+    // ========== Phase 2 — Student/Faculty/Staff Central Profiles (إضافي فقط) ==========
+
+    /**
+     * الملف الأكاديمي المركزي للطالب (إن وُجد).
+     */
+    public function studentProfile(): HasOne
+    {
+        return $this->hasOne(StudentProfile::class);
+    }
+
+    /**
+     * ملف عضو هيئة التدريس (إن وُجد). المشرف في نظام مشاريع التخرج
+     * القديم (role = supervisor) هو نفس هذا الشخص.
+     */
+    public function facultyProfile(): HasOne
+    {
+        return $this->hasOne(FacultyProfile::class);
+    }
+
+    /**
+     * ملف الموظف الإداري (إن وُجد).
+     */
+    public function staffProfile(): HasOne
+    {
+        return $this->hasOne(StaffProfile::class);
     }
 }
