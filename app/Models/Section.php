@@ -10,7 +10,7 @@ class Section extends Model
     protected $fillable = [
         'course_id',
         'academic_term_id',
-        'faculty_id',
+        'faculty_profile_id',
         'code',
         'capacity',
     ];
@@ -26,11 +26,13 @@ class Section extends Model
     }
 
     /**
-     * عضو هيئة التدريس المسؤول عن الشعبة (يشير إلى users.id مباشرة،
-     * بنفس نمط Project.supervisor_id القديم).
+     * عضو هيئة التدريس المسؤول عن الشعبة، عبر faculty_profiles
+     * (وليس users.id مباشرة) — بهذا يفرض قاعدة البيانات نفسها أن
+     * المُدرِّس له ملف أكاديمي فعلي (Phase 2). للوصول لحساب المستخدم
+     * الأساسي: $section->faculty?->user.
      */
     public function faculty(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'faculty_id');
+        return $this->belongsTo(FacultyProfile::class, 'faculty_profile_id');
     }
 }

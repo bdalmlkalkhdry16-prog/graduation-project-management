@@ -29,14 +29,29 @@ class ProgramAndLevelTest extends TestCase
     }
 
     /** @test */
-    public function a_specialization_can_have_only_one_program()
+    public function a_specialization_can_now_have_two_programs_at_different_levels()
+    {
+        // إصلاح معماري بعد مراجعة Phase 3: نفس التخصص يمكن أن يُقدَّم
+        // كدبلوم وبكالوريوس معًا.
+        $specialization = Specialization::factory()->create();
+
+        $diploma = Program::create(['specialization_id' => $specialization->id, 'level' => 'diploma']);
+        $bachelor = Program::create(['specialization_id' => $specialization->id, 'level' => 'bachelor']);
+
+        $this->assertEquals(2, Program::where('specialization_id', $specialization->id)->count());
+        $this->assertNotEquals($diploma->id, $bachelor->id);
+    }
+
+    /** @test */
+    public function the_same_specialization_and_level_combination_cannot_repeat()
     {
         $specialization = Specialization::factory()->create();
         Program::create(['specialization_id' => $specialization->id, 'level' => 'diploma']);
 
         $this->expectException(\Illuminate\Database\QueryException::class);
 
-        Program::create(['specialization_id' => $specialization->id, 'level' => 'bachelor']);
+        // نفس التخصص + نفس المستوى مرة ثانية → يجب أن يُرفَض
+        Program::create(['specialization_id' => $specialization->id, 'level' => 'diploma']);
     }
 
     /** @test */

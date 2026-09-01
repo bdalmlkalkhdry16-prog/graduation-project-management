@@ -46,13 +46,17 @@ class AcademicStructureSeeder extends Seeder
             'semester' => 'second',
         ]);
 
-        $demoFaculty = User::where('role', 'supervisor')->first();
+        $demoFaculty = User::where('role', 'supervisor')->first()?->facultyProfile;
 
         Specialization::all()->each(function (Specialization $specialization) use ($firstTerm, $demoFaculty) {
-            // كل التخصصات التجريبية الحالية duration_years = 4 → بكالوريوس
+            // كل التخصصات التجريبية الحالية duration_years = 4 → بكالوريوس.
+            // إصلاح معماري بعد مراجعة Phase 3: المطابقة على
+            // specialization_id فقط كانت تصطدم ببرنامج آخر (دبلوم) قد
+            // يكون موجودًا لنفس التخصص بعد السماح بأكثر من برنامج له.
+            // المطابقة الآن على (specialization_id + level) معًا.
             $program = Program::updateOrCreate(
-                ['specialization_id' => $specialization->id],
-                ['level' => 'bachelor', 'total_credit_hours' => $specialization->duration_years * 33]
+                ['specialization_id' => $specialization->id, 'level' => 'bachelor'],
+                ['total_credit_hours' => $specialization->duration_years * 33]
             );
 
             for ($levelNumber = 1; $levelNumber <= $specialization->duration_years; $levelNumber++) {
@@ -85,25 +89,30 @@ class AcademicStructureSeeder extends Seeder
                     'academic_term_id' => $firstTerm->id,
                     'code' => 'أ',
                 ], [
-                    'faculty_id' => $demoFaculty?->id,
+                    'faculty_profile_id' => $demoFaculty?->id,
                     'capacity' => 30,
                 ]);
             }
         });
 
         // ربط أي StudentProfile موجود مسبقًا (من Phase 2) ببرنامجه
-        // المطابق حسب specialization_id — لا تخمين لمستوى الطالب الحالي
-        // (current_level_id يبقى فارغًا، يُحدَّد لاحقًا يدويًا أو عبر
-        // وحدة شؤون الطلاب).
+        // المطابق حسب specialization_id — فقط عندما يوجد برنامج واحد
+        // بلا لبس لهذا التخصص. إصلاح معماري بعد مراجعة Phase 3: بعد
+        // السماح بأكثر من برنامج لنفس التخصص (دبلوم + بكالوريوس)،
+        // اختيار ->first() القديم كان يمكن أن يربط الطالب ببرنامج خاطئ
+        // بصمت. الآن: تخصص بلا لبس → ربط تلقائي، تخصص بأكثر من برنامج
+        // → يُترَك program_id فارغًا لتحديد يدوي (لا تخمين)، تمامًا
+        // كما current_level_id يبقى فارغًا لنفس السبب.
         StudentProfile::whereNull('program_id')
             ->whereNotNull('specialization_id')
             ->get()
             ->each(function (StudentProfile $profile) {
-                $program = Program::where('specialization_id', $profile->specialization_id)->first();
+                $matchingPrograms = Program::where('specialization_id', $profile->specialization_id)->get();
 
-                if ($program) {
-                    $profile->update(['program_id' => $program->id]);
+                if ($matchingPrograms->count() === 1) {
+                    $profile->update(['program_id' => $matchingPrograms->first()->id]);
                 }
+                // أكثر من برنامج لنفس التخصص → لا تخمين، يبقى program_id فارغًا.
             });
     }
 }
