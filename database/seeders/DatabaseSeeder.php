@@ -24,6 +24,9 @@ class DatabaseSeeder extends Seeder
             // Phase 2 — Student/Faculty/Staff Central Profiles (تعتمد على Phase 1)
             LegacyStudentProfileDataSeeder::class,
             LegacyFacultyProfileDataSeeder::class,
+            // Phase 3 — Academic Structure (تعتمد على Phase 2)
+            AcademicYearSeeder::class,
+            AcademicStructureSeeder::class,
         ]);
     }
 }

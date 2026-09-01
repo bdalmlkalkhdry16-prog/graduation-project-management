@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Phase 2 — Student Central Profile.
+ * program_id / current_level_id: أُضيفا في Phase 3 (Academic Structure).
  */
 class StudentProfile extends Model
 {
@@ -18,6 +19,8 @@ class StudentProfile extends Model
         'level',
         'admission_year',
         'academic_status',
+        'program_id',
+        'current_level_id',
     ];
 
     public function user(): BelongsTo
@@ -28,5 +31,15 @@ class StudentProfile extends Model
     public function specialization(): BelongsTo
     {
         return $this->belongsTo(Specialization::class);
+    }
+
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class);
+    }
+
+    public function currentLevel(): BelongsTo
+    {
+        return $this->belongsTo(Level::class, 'current_level_id');
     }
 }

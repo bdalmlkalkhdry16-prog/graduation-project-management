@@ -46,6 +46,8 @@ class RolesAndPermissionsSeeder extends Seeder
                     'comments.createOwn',
                     // Phase 2
                     'student-profiles.viewOwn',
+                    // Phase 3
+                    'academic-structure.viewOwn',
                 ],
             ],
             // Phase 2 — Student/Faculty/Staff Central Profiles.
@@ -58,6 +60,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'description' => 'عضو هيئة تدريس (يشمل من كان "مشرف" في نظام مشاريع التخرج القديم)',
                 'permissions' => [
                     'faculty-profiles.viewOwn',
+                    // Phase 3
+                    'sections.viewOwn',
                 ],
             ],
         ];
