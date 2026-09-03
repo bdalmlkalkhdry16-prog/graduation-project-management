@@ -41,6 +41,15 @@ class Specialization extends Model
     }
 
     /**
+     * العلاقة مع البرامج (Phase 3 — Academic Structure).
+     * العلاقة المعاكسة لـ Program::specialization().
+     */
+    public function programs()
+    {
+        return $this->hasMany(Program::class);
+    }
+
+    /**
      * العلاقة مع المستخدمين (الطلاب)
      */
     public function students()

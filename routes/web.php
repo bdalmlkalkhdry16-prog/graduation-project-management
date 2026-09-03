@@ -11,6 +11,7 @@ use App\Http\Controllers\Evaluation\EvaluationController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DevelopmentRequestController;
+use App\Http\Controllers\PublicPortalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +28,19 @@ Route::get('/', function () {
 Route::get('/help', function () {
     return view('help');
 })->name('help')->middleware('auth');
+
+// =========================================================================
+// Phase 4 — Public Portal (بوابة عامة، بلا تسجيل دخول)
+// مسار مستقل تمامًا (/portal) — لا تعديل على '/' (welcome.blade.php)
+// ولا أي route قديم آخر.
+// =========================================================================
+Route::prefix('portal')->name('portal.')->group(function () {
+    Route::get('/', [PublicPortalController::class, 'index'])->name('home');
+    Route::get('/departments', [PublicPortalController::class, 'departments'])->name('departments');
+    Route::get('/departments/{department}', [PublicPortalController::class, 'departmentShow'])->name('departments.show');
+    Route::get('/programs/{program}', [PublicPortalController::class, 'programShow'])->name('programs.show');
+    Route::get('/admission', [PublicPortalController::class, 'admission'])->name('admission');
+});
 
 // =========================================================================
 // المصادقة (Auth)
