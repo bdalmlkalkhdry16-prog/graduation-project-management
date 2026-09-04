@@ -23,19 +23,6 @@ class StudentProfile extends Model
         'current_level_id',
     ];
 
-    /**
-     * إصلاح معماري بعد مراجعة Phase 3: يمنع حفظ بيانات أكاديمية متضاربة
-     * على مستوى Model (لا يوجد قيد DB مباشر ممكن هنا لأن التحقق يحتاج
-     * جلب سجل مرتبط للمقارنة، وهذا غير قابل للتعبير كقيد CHECK بسيط
-     * متوافق بين SQLite وMySQL معًا). حدث saving() نقطة مركزية واحدة
-     * تغطي create() وupdate() معًا مهما كان مصدر الاستدعاء:
-     *
-     * 1) current_level_id يجب أن ينتمي لنفس program_id.
-     * 2) specialization_id يجب أن يطابق program.specialization_id
-     *    (عند تحديد الاثنين معًا). specialization_id يبقى صالحًا
-     *    ومطلوبًا بمفرده قبل تحديد program_id رسميًا (حالة القبول
-     *    الأولي) — التحقق لا يُفعَّل إلا عند وجود الاثنين معًا.
-     */
     protected static function booted(): void
     {
         static::saving(function (StudentProfile $profile) {
@@ -79,5 +66,13 @@ class StudentProfile extends Model
     public function currentLevel(): BelongsTo
     {
         return $this->belongsTo(Level::class, 'current_level_id');
+    }
+
+    /**
+     * Phase 5 — Student Affairs.
+     */
+    public function serviceRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StudentServiceRequest::class);
     }
 }

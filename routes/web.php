@@ -12,6 +12,9 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\DevelopmentRequestController;
 use App\Http\Controllers\PublicPortalController;
+use App\Http\Controllers\Staff\StudentProfileController;
+use App\Http\Controllers\Staff\ServiceRequestController as StaffServiceRequestController;
+use App\Http\Controllers\Student\ServiceRequestController as StudentServiceRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,8 +34,6 @@ Route::get('/help', function () {
 
 // =========================================================================
 // Phase 4 — Public Portal (بوابة عامة، بلا تسجيل دخول)
-// مسار مستقل تمامًا (/portal) — لا تعديل على '/' (welcome.blade.php)
-// ولا أي route قديم آخر.
 // =========================================================================
 Route::prefix('portal')->name('portal.')->group(function () {
     Route::get('/', [PublicPortalController::class, 'index'])->name('home');
@@ -74,26 +75,19 @@ Route::middleware('auth')->prefix('profile')->name('profile.')->group(function (
 // =========================================================================
 // المشاريع (Projects)
 // =========================================================================
-
-// مسار المشاريع قيد المراجعة (قبل resource)
 Route::middleware('auth')->get('/projects/pending-review', [ProjectController::class, 'pendingReview'])->name('projects.pending_review');
 Route::middleware('auth')->get('/projects/archive', [ProjectController::class, 'archive'])->name('projects.archive');
 Route::post('{project}/review', [ProjectController::class, 'review'])->name('projects.review');
-// مسارات المناقشات (Defense)
 Route::middleware('auth')->put('/projects/{project}/set-defense', [ProjectController::class, 'setDefenseDate'])->name('projects.set_defense');
 Route::middleware('auth')->get('/defense-schedule', [ProjectController::class, 'defenseSchedule'])->name('defense.schedule');
 
-// مجموعة المسارات المخصصة (تأتي قبل Route::resource)
 Route::middleware('auth')->prefix('projects')->name('projects.')->group(function () {
     Route::get('idea/{idea}', [ProjectController::class, 'showIdea'])->name('idea.show');
-
-    // مسارات الأفكار – ثابتة
     Route::get('create-idea', [ProjectController::class, 'createIdea'])->name('create_idea');
     Route::post('submit-idea', [ProjectController::class, 'submitIdea'])->name('submit_idea');
     Route::post('{project}/review-idea', [ProjectController::class, 'reviewIdea'])->name('review_idea');
     Route::post('idea/{idea}/review', [ProjectController::class, 'reviewIdea'])->name('idea.review');
 
-    // مسارات الملفات والأعضاء – تعتمد على {project}
     Route::prefix('{project}/files')->name('files.')->group(function () {
         Route::get('/', [ProjectFileController::class, 'index'])->name('index');
         Route::post('/', [ProjectFileController::class, 'store'])->name('store');
@@ -114,15 +108,12 @@ Route::middleware('auth')->prefix('projects')->name('projects.')->group(function
         Route::post('/invite', [ProjectMemberController::class, 'sendInvite'])->name('send-invite');
     });
 
-    // تقديم المشروع للمراجعة ومراجعة المشروع
     Route::post('{project}/submit', [ProjectController::class, 'submit'])->name('submit');
     Route::post('{project}/review', [ProjectController::class, 'review'])->name('review');
 });
 
-// CRUD الأساسي – يأتي بعد المسارات المخصصة
 Route::middleware('auth')->resource('projects', ProjectController::class);
 
-// قبول الدعوة (خارج مجموعة projects)
 Route::get('projects/invite/{code}', [ProjectMemberController::class, 'acceptInvite'])
     ->name('projects.invite.accept')
     ->middleware('auth');
@@ -130,12 +121,9 @@ Route::get('projects/invite/{code}', [ProjectMemberController::class, 'acceptInv
 // =========================================================================
 // التقييم (Evaluations)
 // =========================================================================
-
-// مسارات سجل التقييمات (للمشرف والطالب والمدير) – خارج صلاحيات المشرف
 Route::middleware('auth')->get('/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
 Route::middleware('auth')->get('/evaluations/{evaluation}', [EvaluationController::class, 'show'])->name('evaluations.show');
 
-// مسارات إنشاء وتعديل التقييم (للمشرف فقط)
 Route::middleware(['auth', 'supervisor'])->prefix('evaluations')->name('evaluations.')->group(function () {
     Route::get('project/{project}', [EvaluationController::class, 'create'])->name('create');
     Route::post('project/{project}', [EvaluationController::class, 'store'])->name('store');
@@ -267,6 +255,39 @@ Route::middleware('auth')->group(function () {
     Route::get('/test-supervisor', fn() => '✅ مشرف')->middleware('supervisor')->name('test.supervisor');
     Route::get('/test-student', fn() => '✅ طالب')->middleware('student')->name('test.student');
 });
+
+// =========================================================================
+// Phase 5 — Student Affairs (شؤون الطلاب)
+// Authorization بالكامل عبر Roles & Permissions الجديد (Phase 1)،
+// وليس عبر middleware('admin'/'supervisor'/'student') القديمة.
+// =========================================================================
+Route::middleware(['auth', 'permission:student-profiles.manage'])
+    ->prefix('staff/student-profiles')->name('staff.student-profiles.')
+    ->group(function () {
+        Route::get('/', [StudentProfileController::class, 'index'])->name('index');
+        Route::get('/create', [StudentProfileController::class, 'create'])->name('create');
+        Route::post('/', [StudentProfileController::class, 'store'])->name('store');
+        Route::get('/{studentProfile}', [StudentProfileController::class, 'show'])->name('show');
+        Route::get('/{studentProfile}/edit', [StudentProfileController::class, 'edit'])->name('edit');
+        Route::put('/{studentProfile}', [StudentProfileController::class, 'update'])->name('update');
+    });
+
+Route::middleware(['auth', 'permission:service-requests.manageAll'])
+    ->prefix('staff/service-requests')->name('staff.service-requests.')
+    ->group(function () {
+        Route::get('/', [StaffServiceRequestController::class, 'index'])->name('index');
+        Route::get('/{serviceRequest}', [StaffServiceRequestController::class, 'show'])->name('show');
+        Route::put('/{serviceRequest}/status', [StaffServiceRequestController::class, 'updateStatus'])->name('update-status');
+    });
+
+Route::middleware(['auth', 'permission:service-requests.manageOwn'])
+    ->prefix('my/service-requests')->name('student.service-requests.')
+    ->group(function () {
+        Route::get('/', [StudentServiceRequestController::class, 'index'])->name('index');
+        Route::get('/create', [StudentServiceRequestController::class, 'create'])->name('create');
+        Route::post('/', [StudentServiceRequestController::class, 'store'])->name('store');
+        Route::get('/{serviceRequest}', [StudentServiceRequestController::class, 'show'])->name('show');
+    });
 
 // =========================================================================
 // صفحة الخطأ 404

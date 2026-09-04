@@ -48,6 +48,8 @@ class RolesAndPermissionsSeeder extends Seeder
                     'student-profiles.viewOwn',
                     // Phase 3
                     'academic-structure.viewOwn',
+                    // Phase 5
+                    'service-requests.manageOwn',
                 ],
             ],
             // Phase 2 — Student/Faculty/Staff Central Profiles.
@@ -62,6 +64,17 @@ class RolesAndPermissionsSeeder extends Seeder
                     'faculty-profiles.viewOwn',
                     // Phase 3
                     'sections.viewOwn',
+                ],
+            ],
+            // Phase 5 — Student Affairs.
+            // أول استخدام فعلي لدور staff (جدول staff_profiles كان جاهزًا
+            // من Phase 2 بلا بيانات ولا دور مرتبط به).
+            'staff' => [
+                'name' => 'موظف شؤون طلاب',
+                'description' => 'ينشئ ملفات الطلاب الرسمية بعد القبول، ويدير طلبات الخدمات',
+                'permissions' => [
+                    'student-profiles.manage',
+                    'service-requests.manageAll',
                 ],
             ],
         ];
