@@ -50,6 +50,8 @@ class RolesAndPermissionsSeeder extends Seeder
                     'academic-structure.viewOwn',
                     // Phase 5
                     'service-requests.manageOwn',
+                    'schedules.viewOwn',
+                    'attendance.viewOwn',
                 ],
             ],
             // Phase 2 — Student/Faculty/Staff Central Profiles.
@@ -64,6 +66,9 @@ class RolesAndPermissionsSeeder extends Seeder
                     'faculty-profiles.viewOwn',
                     // Phase 3
                     'sections.viewOwn',
+
+                    'attendance.manageOwn',
+
                 ],
             ],
             // Phase 5 — Student Affairs.
@@ -75,6 +80,10 @@ class RolesAndPermissionsSeeder extends Seeder
                 'permissions' => [
                     'student-profiles.manage',
                     'service-requests.manageAll',
+
+                      'rooms.manage',
+                    'schedules.manage',
+                    'attendance.viewAll',
                 ],
             ],
         ];

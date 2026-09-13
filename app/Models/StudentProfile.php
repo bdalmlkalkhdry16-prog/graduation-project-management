@@ -75,4 +75,11 @@ class StudentProfile extends Model
     {
         return $this->hasMany(StudentServiceRequest::class);
     }
+        /**
+     * Phase 6 — Attendance.
+     */
+    public function attendanceRecords(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AttendanceRecord::class);
+    }
 }

@@ -26,4 +26,11 @@ class FacultyProfile extends Model
     {
         return $this->belongsTo(Specialization::class);
     }
+        /**
+     * Phase 6 — Schedules. الشعب التي يدرّسها عضو هيئة التدريس.
+     */
+    public function sections(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Section::class, 'faculty_profile_id');
+    }
 }

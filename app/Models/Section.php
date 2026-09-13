@@ -35,4 +35,11 @@ class Section extends Model
     {
         return $this->belongsTo(FacultyProfile::class, 'faculty_profile_id');
     }
+        /**
+     * Phase 6 — Schedules.
+     */
+    public function schedules(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Schedule::class);
+    }
 }

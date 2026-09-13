@@ -15,6 +15,12 @@ use App\Http\Controllers\PublicPortalController;
 use App\Http\Controllers\Staff\StudentProfileController;
 use App\Http\Controllers\Staff\ServiceRequestController as StaffServiceRequestController;
 use App\Http\Controllers\Student\ServiceRequestController as StudentServiceRequestController;
+use App\Http\Controllers\Staff\RoomController;
+use App\Http\Controllers\Staff\ScheduleController as StaffScheduleController;
+use App\Http\Controllers\Staff\AttendanceOversightController;
+use App\Http\Controllers\Faculty\AttendanceController as FacultyAttendanceController;
+use App\Http\Controllers\Student\ScheduleController as StudentScheduleController;
+use App\Http\Controllers\Student\AttendanceController as StudentAttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -288,7 +294,54 @@ Route::middleware(['auth', 'permission:service-requests.manageOwn'])
         Route::post('/', [StudentServiceRequestController::class, 'store'])->name('store');
         Route::get('/{serviceRequest}', [StudentServiceRequestController::class, 'show'])->name('show');
     });
+Route::middleware(['auth', 'permission:rooms.manage'])
+    ->prefix('staff/rooms')->name('staff.rooms.')
+    ->group(function () {
+        Route::get('/', [RoomController::class, 'index'])->name('index');
+        Route::get('/create', [RoomController::class, 'create'])->name('create');
+        Route::post('/', [RoomController::class, 'store'])->name('store');
+        Route::get('/{room}/edit', [RoomController::class, 'edit'])->name('edit');
+        Route::put('/{room}', [RoomController::class, 'update'])->name('update');
+    });
 
+Route::middleware(['auth', 'permission:schedules.manage'])
+    ->prefix('staff/schedules')->name('staff.schedules.')
+    ->group(function () {
+        Route::get('/', [StaffScheduleController::class, 'index'])->name('index');
+        Route::get('/create', [StaffScheduleController::class, 'create'])->name('create');
+        Route::post('/', [StaffScheduleController::class, 'store'])->name('store');
+        Route::get('/{schedule}/edit', [StaffScheduleController::class, 'edit'])->name('edit');
+        Route::put('/{schedule}', [StaffScheduleController::class, 'update'])->name('update');
+    });
+
+Route::middleware(['auth', 'permission:attendance.viewAll'])
+    ->prefix('staff/attendance')->name('staff.attendance.')
+    ->group(function () {
+        Route::get('/', [AttendanceOversightController::class, 'index'])->name('index');
+        Route::get('/{attendanceSession}', [AttendanceOversightController::class, 'show'])->name('show');
+    });
+
+Route::middleware(['auth', 'permission:attendance.manageOwn'])
+    ->prefix('faculty/attendance')->name('faculty.attendance.')
+    ->group(function () {
+        Route::get('/', [FacultyAttendanceController::class, 'index'])->name('index');
+        Route::get('/create', [FacultyAttendanceController::class, 'create'])->name('create');
+        Route::post('/', [FacultyAttendanceController::class, 'store'])->name('store');
+        Route::get('/{attendanceSession}', [FacultyAttendanceController::class, 'show'])->name('show');
+        Route::put('/{attendanceSession}', [FacultyAttendanceController::class, 'update'])->name('update');
+    });
+
+Route::middleware(['auth', 'permission:schedules.viewOwn'])
+    ->prefix('my/schedule')->name('student.schedule.')
+    ->group(function () {
+        Route::get('/', [StudentScheduleController::class, 'index'])->name('index');
+    });
+
+Route::middleware(['auth', 'permission:attendance.viewOwn'])
+    ->prefix('my/attendance')->name('student.attendance.')
+    ->group(function () {
+        Route::get('/', [StudentAttendanceController::class, 'index'])->name('index');
+    });
 // =========================================================================
 // صفحة الخطأ 404
 // =========================================================================
