@@ -14,7 +14,7 @@
     <div class="card">
         <div class="card-body p-0">
             <table class="table table-hover mb-0">
-                <thead><tr><th>الاسم</th><th>المبنى</th><th>السعة</th><th>النوع</th><th>الحالة</th><th></th></tr></thead>
+                <thead><tr><th>الاسم</th><th>المبنى</th><th>رقم القاعة</th><th>النوع</th><th>الحالة</th><th></th></tr></thead>
                 <tbody>
                 @forelse ($rooms as $room)
                     <tr>

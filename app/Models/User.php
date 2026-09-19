@@ -149,16 +149,17 @@ class User extends Authenticatable
     /**
      * الحصول على اسم الدور بالعربية
      */
-    public function getRoleNameAttribute()
-    {
-        return match($this->role) {
-            'student' => 'طالب',
-            'supervisor' => 'مشرف',
-            'admin' => 'مدير النظام',
-            default => 'غير محدد'
-        };
-    }
-
+   public function getRoleNameAttribute()
+{
+    return match($this->role) {
+        'student' => 'طالب',
+        'supervisor' => 'مشرف',
+        'admin' => 'مدير النظام',
+        'staff' => 'موظف شؤون الطلاب',
+        'faculty' => 'عضو هيئة تدريس',
+        default => 'غير محدد'
+    };
+}
     // ========== Phase 1 — Roles & Permissions (نظام جديد، إضافي فقط) ==========
     //
     // كل ما يلي جديد بالكامل ولا يعدّل أو يستبدل role/isAdmin()/isSupervisor()/isStudent()

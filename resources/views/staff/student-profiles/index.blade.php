@@ -6,6 +6,10 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>ملفات الطلاب</h2>
+        <a href="{{ url()->previous() }}" class="btn btn-outline-secondary mb-3">
+    <i class="fas fa-arrow-right me-1"></i>
+    رجوع
+</a>
         <a href="{{ route('staff.student-profiles.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i> إنشاء ملف طالب جديد
         </a>

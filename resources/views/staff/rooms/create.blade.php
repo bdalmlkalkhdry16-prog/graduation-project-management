@@ -23,7 +23,7 @@
                             <input type="text" name="building" class="form-control" value="{{ old('building') }}">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">السعة</label>
+                            <label class="form-label">رقم القاعة</label>
                             <input type="number" name="capacity" class="form-control" value="{{ old('capacity') }}" min="1" required>
                         </div>
                         <div class="mb-3">
