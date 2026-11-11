@@ -8,8 +8,6 @@ use App\Http\Requests\UpdateAttendanceRecordsRequest;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceSession;
 use App\Models\Schedule;
-use App\Models\StudentProfile;
-use App\Models\StudyPlan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -64,8 +62,7 @@ class AttendanceController extends Controller
 
         $attendanceSession->load(['schedule.section.course', 'records']);
 
-        $levelIds = StudyPlan::where('course_id', $attendanceSession->schedule->section->course_id)->pluck('level_id');
-        $roster = StudentProfile::whereIn('current_level_id', $levelIds)->with('user')->get();
+        $roster = $attendanceSession->schedule->section->activeStudentProfiles()->with('user')->get();
 
         $existingRecords = $attendanceSession->records->keyBy('student_profile_id');
 

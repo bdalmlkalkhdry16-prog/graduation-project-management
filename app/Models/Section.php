@@ -42,4 +42,22 @@ class Section extends Model
     {
         return $this->hasMany(Schedule::class);
     }
+
+    public function enrollments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function studentProfiles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(StudentProfile::class, 'enrollments')
+            ->withPivot('status', 'enrolled_at')
+            ->withTimestamps();
+    }
+
+    /** الطلاب ذوو التسجيل النشط فقط. */
+    public function activeStudentProfiles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->studentProfiles()->wherePivot('status', Enrollment::STATUS_ACTIVE);
+    }
 }

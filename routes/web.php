@@ -22,6 +22,9 @@ use App\Http\Controllers\Staff\StudentProfileController;
 use App\Http\Controllers\Staff\ServiceRequestController as StaffServiceRequestController;
 use App\Http\Controllers\Student\ServiceRequestController as StudentServiceRequestController;
 use App\Http\Controllers\Staff\RoomController;
+use App\Http\Controllers\Staff\EnrollmentController as StaffEnrollmentController;
+use App\Http\Controllers\Faculty\EnrollmentController as FacultyEnrollmentController;
+use App\Http\Controllers\Student\EnrollmentController as StudentEnrollmentController;
 use App\Http\Controllers\Staff\ScheduleController as StaffScheduleController;
 use App\Http\Controllers\Staff\AttendanceOversightController;
 
@@ -1065,3 +1068,38 @@ Route::middleware([
 Route::fallback(function () {
     return view('errors.404');
 });
+
+
+// =========================================================================
+// Phase 6.1 — Enrollment Management
+// إدارة التسجيل حصرية لشؤون الطلاب (enrollments.manage). الفحص عبر
+// middleware الصلاحيات + FormRequests مباشرة (لا Policies، لأن Gate::before
+// يمنح مدير النظام كل شيء).
+// =========================================================================
+
+Route::middleware(['auth', 'permission:enrollments.manage'])
+    ->prefix('staff/enrollments')
+    ->name('staff.enrollments.')
+    ->group(function () {
+        Route::get('/', [StaffEnrollmentController::class, 'index'])->name('index');
+        Route::get('/students', [StaffEnrollmentController::class, 'students'])->name('students');
+        Route::get('/students/{studentProfile}', [StaffEnrollmentController::class, 'history'])->name('history');
+        Route::get('/sections/{section}', [StaffEnrollmentController::class, 'show'])->name('show');
+        Route::post('/sections/{section}', [StaffEnrollmentController::class, 'store'])->name('store');
+        Route::patch('/{enrollment}/status', [StaffEnrollmentController::class, 'updateStatus'])->name('status');
+    });
+
+Route::middleware(['auth', 'permission:enrollments.viewOwn'])
+    ->prefix('my/enrollments')
+    ->name('student.enrollments.')
+    ->group(function () {
+        Route::get('/', [StudentEnrollmentController::class, 'index'])->name('index');
+    });
+
+Route::middleware(['auth', 'permission:enrollments.viewOwnSections'])
+    ->prefix('faculty/enrollments')
+    ->name('faculty.enrollments.')
+    ->group(function () {
+        Route::get('/', [FacultyEnrollmentController::class, 'index'])->name('index');
+        Route::get('/sections/{section}', [FacultyEnrollmentController::class, 'show'])->name('show');
+    });

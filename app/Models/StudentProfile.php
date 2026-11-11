@@ -82,4 +82,22 @@ class StudentProfile extends Model
     {
         return $this->hasMany(AttendanceRecord::class);
     }
+
+    public function enrollments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
+
+    public function sections(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Section::class, 'enrollments')
+            ->withPivot('status', 'enrolled_at')
+            ->withTimestamps();
+    }
+
+    /** الشعب ذات التسجيل النشط فقط. */
+    public function activeSections(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->sections()->wherePivot('status', Enrollment::STATUS_ACTIVE);
+    }
 }

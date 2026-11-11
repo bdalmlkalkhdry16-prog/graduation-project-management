@@ -52,6 +52,8 @@ class RolesAndPermissionsSeeder extends Seeder
                     'service-requests.manageOwn',
                     'schedules.viewOwn',
                     'attendance.viewOwn',
+                    // Phase 6.1
+                    'enrollments.viewOwn',
                 ],
             ],
             // Phase 2 — Student/Faculty/Staff Central Profiles.
@@ -66,8 +68,10 @@ class RolesAndPermissionsSeeder extends Seeder
                     'faculty-profiles.viewOwn',
                     // Phase 3
                     'sections.viewOwn',
-
+                    'schedules.viewOwn',
                     'attendance.manageOwn',
+                    // Phase 6.1
+                    'enrollments.viewOwnSections',
 
                 ],
             ],
@@ -84,6 +88,16 @@ class RolesAndPermissionsSeeder extends Seeder
                       'rooms.manage',
                     'schedules.manage',
                     'attendance.viewAll',
+                ],
+            ],
+            // Phase 6.1 — دور مستقل لمسؤول شؤون الطلاب. دور staff العام قد يشمل
+            // موظفين من إدارات مختلفة، لذلك لا يحمل صلاحية إدارة التسجيل؛
+            // تُمنح هذه الصلاحية صراحةً لهذا الدور وحده.
+            'student_affairs' => [
+                'name' => 'مسؤول شؤون الطلاب',
+                'description' => 'يدير تسجيل الطلاب في الشعب الدراسية (إنشاء، سحب، إنهاء)',
+                'permissions' => [
+                    'enrollments.manage',
                 ],
             ],
         ];

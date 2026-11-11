@@ -50,6 +50,25 @@
             </div>
         @endif
 
+        {{-- تسجيل الطلاب في الشعب --}}
+        @if(auth()->user()->hasPermission('enrollments.manage'))
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5>تسجيل الطلاب في الشعب</h5>
+                        <p class="text-muted">
+                            تسجيل الطلاب وسحبهم وإنهاء تسجيلهم في الشعب الدراسية.
+                        </p>
+
+                        <a href="{{ route('staff.enrollments.index') }}"
+                           class="btn btn-primary">
+                            إدارة التسجيل
+                        </a>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- الغرف --}}
         @if(auth()->user()->hasPermission('rooms.manage'))
             <div class="col-md-6 col-lg-4">

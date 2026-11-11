@@ -26,7 +26,7 @@ class DashboardController extends Controller
         }
 
         // موظف شؤون الطلاب
-        if ($user->hasRole('staff')) {
+        if ($user->hasRole('staff') || $user->hasRole('student_affairs')) {
             return view('dashboard.staff');
         }
 
