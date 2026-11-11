@@ -9,7 +9,7 @@
                 <div class="card-body">
                     @if (session('success'))<div class="alert alert-success">{{ session('success') }}</div>@endif
                     @if ($roster->isEmpty())
-                        <div class="alert alert-warning">لا يوجد طلاب مسجَّلون في هذا المستوى/المقرر حاليًا.</div>
+                        <div class="alert alert-warning">لا يوجد طلاب بتسجيل نشط في هذه الشعبة حاليًا.</div>
                     @else
                         <form action="{{ route('faculty.attendance.update', $attendanceSession) }}" method="POST">
                             @csrf @method('PUT')

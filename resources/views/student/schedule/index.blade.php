@@ -20,7 +20,7 @@
                             <td>{{ $schedule->start_time }} - {{ $schedule->end_time }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center text-muted py-4">لا توجد شعب مسجَّل فيها حاليًا.</td></tr>
+                        <tr><td colspan="5" class="text-center text-muted py-4">لا يوجد جدول منشور لشعبك المسجَّل فيها حاليًا.</td></tr>
                     @endforelse
                     </tbody>
                 </table>
