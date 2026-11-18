@@ -11,7 +11,7 @@
                 <div class="card-body">
                     <dl class="row">
                         <dt class="col-sm-3">النوع</dt>
-                        <dd class="col-sm-9">{{ $serviceRequest->type }}</dd>
+                        <dd class="col-sm-9">{{ \App\Models\StudentServiceRequest::typeLabel($serviceRequest->type) }}</dd>
 
                         <dt class="col-sm-3">الوصف</dt>
                         <dd class="col-sm-9">{{ $serviceRequest->description ?? '-' }}</dd>
@@ -48,8 +48,8 @@
                             <div class="mb-3">
                                 <label class="form-label">الحالة الجديدة</label>
                                 <select name="status" class="form-select" required>
-                                    @foreach (['pending', 'in_progress', 'approved', 'rejected', 'completed'] as $status)
-                                        <option value="{{ $status }}" {{ $serviceRequest->status === $status ? 'selected' : '' }}>
+                                    @foreach ($serviceRequest->nextStatuses() as $status)
+                                        <option value="{{ $status }}" {{ old('status') === $status ? 'selected' : '' }}>
                                             {{ \App\Models\StudentServiceRequest::statusLabel($status) }}
                                         </option>
                                     @endforeach

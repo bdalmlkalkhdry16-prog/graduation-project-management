@@ -24,7 +24,7 @@ class ServiceRequestController extends Controller
     {
         $this->authorize('create', StudentServiceRequest::class);
 
-        return view('student.service-requests.create');
+        return view('student.service-requests.create', ['types' => StudentServiceRequest::availableTypes()]);
     }
 
     public function store(StoreServiceRequestRequest $request): RedirectResponse

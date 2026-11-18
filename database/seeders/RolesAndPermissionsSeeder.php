@@ -105,6 +105,14 @@ class RolesAndPermissionsSeeder extends Seeder
                     'enrollments.manage',
                 ],
             ],
+            // E1 — موظف مخصص للبوابة الإلكترونية: يعالج طلبات الخدمات فقط.
+            'eservices_officer' => [
+                'name' => 'موظف البوابة الإلكترونية',
+                'description' => 'يعالج طلبات الخدمات الإلكترونية للطلاب (قبول، رفض، إنجاز)',
+                'permissions' => [
+                    'service-requests.manageAll',
+                ],
+            ],
         ];
 
         // Phase 7 — صلاحيات تُنشأ ولا تُمنح لأي دور تلقائيًا؛ تُسند صراحةً من المؤسسة

@@ -7,7 +7,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header"><h4 class="mb-0">{{ $serviceRequest->type }}</h4></div>
+                <div class="card-header"><h4 class="mb-0">{{ \App\Models\StudentServiceRequest::typeLabel($serviceRequest->type) }}</h4></div>
                 <div class="card-body">
                     <dl class="row">
                         <dt class="col-sm-3">الحالة</dt>

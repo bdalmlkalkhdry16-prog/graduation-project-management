@@ -25,8 +25,12 @@
 
                         <div class="mb-3">
                             <label class="form-label">نوع الطلب</label>
-                            <input type="text" name="type" class="form-control" value="{{ old('type') }}"
-                                   placeholder="مثال: كشف درجات، إفادة قيد" required>
+                            <select name="type" class="form-select" required>
+                                <option value="">— اختر نوع الطلب —</option>
+                                @foreach ($types as $key => $label)
+                                    <option value="{{ $key }}" @selected(old('type') === $key)>{{ $label }}</option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="mb-3">

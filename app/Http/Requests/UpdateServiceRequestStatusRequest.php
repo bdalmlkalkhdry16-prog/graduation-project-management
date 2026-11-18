@@ -26,4 +26,26 @@ class UpdateServiceRequestStatusRequest extends FormRequest
             'staff_notes' => ['nullable', 'string', 'max:2000'],
         ];
     }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($v) {
+            if ($v->errors()->isNotEmpty()) {
+                return;
+            }
+
+            $serviceRequest = $this->route('serviceRequest');
+            $new = $this->input('status');
+
+            if (! in_array($new, $serviceRequest->nextStatuses(), true)) {
+                $v->errors()->add('status', 'لا يمكن نقل الطلب من "'.StudentServiceRequest::statusLabel($serviceRequest->status).'" إلى "'.StudentServiceRequest::statusLabel($new).'".');
+
+                return;
+            }
+
+            if ($new === StudentServiceRequest::STATUS_REJECTED && ! filled($this->input('staff_notes'))) {
+                $v->errors()->add('staff_notes', 'سبب الرفض إلزامي في ملاحظات الموظف.');
+            }
+        });
+    }
 }

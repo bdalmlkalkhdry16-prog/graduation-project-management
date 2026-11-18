@@ -25,7 +25,7 @@
                     <tbody>
                     @forelse ($requests as $request)
                         <tr>
-                            <td>{{ $request->type }}</td>
+                            <td>{{ \App\Models\StudentServiceRequest::typeLabel($request->type) }}</td>
                             <td>{{ \App\Models\StudentServiceRequest::statusLabel($request->status) }}</td>
                             <td>{{ $request->created_at->format('Y-m-d') }}</td>
                             <td><a href="{{ route('student.service-requests.show', $request) }}" class="btn btn-sm btn-outline-primary">عرض</a></td>
