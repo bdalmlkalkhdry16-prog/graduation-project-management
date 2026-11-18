@@ -43,6 +43,20 @@ class Section extends Model
         return $this->hasMany(Schedule::class);
     }
 
+    /**
+     * توزيع درجات الشعبة مقفل متى قُدِّمت نتائج أي اختبار فيها (submitted/approved/published).
+     * التوزيع خاص بكل شعبة وحدها؛ لا تأثير على شعبة أخرى.
+     */
+    public function distributionLocked(): bool
+    {
+        return $this->exams()->whereNotIn('result_status', Exam::EDITABLE_STATUSES)->exists();
+    }
+
+    public function exams(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Exam::class);
+    }
+
     public function enrollments(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Enrollment::class);

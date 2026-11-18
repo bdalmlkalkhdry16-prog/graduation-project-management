@@ -34,6 +34,11 @@ class Enrollment extends Model
         });
     }
 
+    public function grades(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Grade::class);
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_ACTIVE);

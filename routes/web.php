@@ -25,6 +25,14 @@ use App\Http\Controllers\Staff\RoomController;
 use App\Http\Controllers\Staff\EnrollmentController as StaffEnrollmentController;
 use App\Http\Controllers\Faculty\EnrollmentController as FacultyEnrollmentController;
 use App\Http\Controllers\Student\EnrollmentController as StudentEnrollmentController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ExamDistributionController;
+use App\Http\Controllers\GradeEntryController;
+use App\Http\Controllers\ExamResultController;
+use App\Http\Controllers\Student\ResultController as StudentResultController;
+use App\Http\Controllers\Student\AcademicRecordController as StudentAcademicRecordController;
+use App\Http\Controllers\Staff\AcademicRecordController as StaffAcademicRecordController;
+use App\Http\Controllers\Admin\AcademicSettingController;
 use App\Http\Controllers\Staff\ScheduleController as StaffScheduleController;
 use App\Http\Controllers\Staff\AttendanceOversightController;
 
@@ -1103,3 +1111,43 @@ Route::middleware(['auth', 'permission:enrollments.viewOwnSections'])
         Route::get('/', [FacultyEnrollmentController::class, 'index'])->name('index');
         Route::get('/sections/{section}', [FacultyEnrollmentController::class, 'show'])->name('show');
     });
+
+
+// =========================================================================
+// Phase 7 — Exams, Grades & Academic Records
+// الحماية: auth على المسار + Policies داخل المتحكمات/الـ FormRequests
+// (تُطبَّق Gate::before للمدير)، وقواعد حالة الاختبار في الخدمات.
+// =========================================================================
+
+Route::middleware('auth')->group(function () {
+
+    Route::post('exams/distribution', [ExamDistributionController::class, 'store'])->name('exams.distribution.store');
+    Route::put('exams/{exam}/distribution', [ExamDistributionController::class, 'update'])->name('exams.distribution.update');
+    Route::delete('exams/{exam}/distribution', [ExamDistributionController::class, 'destroy'])->name('exams.distribution.destroy');
+    Route::resource('exams', ExamController::class);
+
+    Route::get('exams/{exam}/grades', [GradeEntryController::class, 'edit'])->name('exams.grades.edit');
+    Route::put('exams/{exam}/grades', [GradeEntryController::class, 'update'])->name('exams.grades.update');
+    Route::post('exams/{exam}/grades/{grade}/correct', [GradeEntryController::class, 'correct'])->name('exams.grades.correct');
+
+    Route::post('exams/{exam}/submit', [ExamResultController::class, 'submit'])->name('exams.submit');
+    Route::post('exams/{exam}/approve', [ExamResultController::class, 'approve'])->name('exams.approve');
+    Route::post('exams/{exam}/reject', [ExamResultController::class, 'reject'])->name('exams.reject');
+    Route::post('exams/{exam}/publish', [ExamResultController::class, 'publish'])->name('exams.publish');
+
+    Route::get('results/review', [ExamResultController::class, 'review'])->name('results.review');
+    Route::get('results/publish', [ExamResultController::class, 'publishIndex'])->name('results.publish');
+
+    Route::get('staff/students/{studentProfile}/academic-record', [StaffAcademicRecordController::class, 'show'])->name('staff.academic-record');
+
+    Route::get('academic-settings', [AcademicSettingController::class, 'edit'])->name('academic-settings.edit');
+    Route::put('academic-settings', [AcademicSettingController::class, 'update'])->name('academic-settings.update');
+});
+
+Route::middleware(['auth', 'permission:results.viewOwn'])->prefix('my')->name('student.')->group(function () {
+    Route::get('results', [StudentResultController::class, 'index'])->name('results.index');
+    Route::get('academic-record', [StudentAcademicRecordController::class, 'record'])->name('academic-record');
+    Route::get('transcript', [StudentAcademicRecordController::class, 'transcript'])->name('transcript');
+    Route::get('transcript/pdf', [StudentAcademicRecordController::class, 'pdf'])->name('transcript.pdf');
+});
+

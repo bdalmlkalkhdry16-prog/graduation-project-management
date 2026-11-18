@@ -54,6 +54,8 @@ class RolesAndPermissionsSeeder extends Seeder
                     'attendance.viewOwn',
                     // Phase 6.1
                     'enrollments.viewOwn',
+                    // Phase 7 — الطالب يرى نتائجه المنشورة وسجله فقط
+                    'results.viewOwn',
                 ],
             ],
             // Phase 2 — Student/Faculty/Staff Central Profiles.
@@ -72,6 +74,9 @@ class RolesAndPermissionsSeeder extends Seeder
                     'attendance.manageOwn',
                     // Phase 6.1
                     'enrollments.viewOwnSections',
+                    // Phase 7 — اختبارات ودرجات شعبه فقط
+                    'exams.manageOwn',
+                    'grades.enterOwn',
 
                 ],
             ],
@@ -102,8 +107,20 @@ class RolesAndPermissionsSeeder extends Seeder
             ],
         ];
 
+        // Phase 7 — صلاحيات تُنشأ ولا تُمنح لأي دور تلقائيًا؛ تُسند صراحةً من المؤسسة
+        // (المدير يملكها فعليًا عبر Gate::before في السياسات).
+        $unassignedPermissions = [
+            'exams.manage',            // إنشاء/تعديل اختبارات أي شعبة
+            'results.review',          // مراجعة واعتماد/رفض النتائج
+            'results.publish',         // نشر النتائج المعتمدة
+            'exams.adjustDistribution', // تعديل إداري لتوزيع درجات شعبة بعد التقديم (بسبب)
+            'grades.correct',          // تصحيح معتمد للدرجات بعد الاعتماد/النشر
+            'academic-settings.manage', // سلم التقديرات ونسبة النجاح
+            'academic-records.viewAll', // اطلاع على السجل الأكاديمي لأي طالب
+        ];
+
         // إنشاء كل الصلاحيات أولاً
-        $allPermissions = collect($roles)->flatMap(fn ($r) => $r['permissions'])->unique();
+        $allPermissions = collect($roles)->flatMap(fn ($r) => $r['permissions'])->merge($unassignedPermissions)->unique();
 
         foreach ($allPermissions as $slug) {
             Permission::updateOrCreate(

@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
 
-    <header class="bg-white border-b border-slate-200">
+    <header class="bg-white border-b border-slate-200 print:hidden">
         <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
             <a href="{{ url('/dashboard') }}" class="text-lg font-bold text-indigo-700">كلية المجتمع عمران</a>
             <nav class="flex flex-wrap items-center gap-4 text-sm font-medium">
@@ -24,6 +24,23 @@
                 @endif
                 @if (auth()->user()->hasPermission('enrollments.viewOwnSections'))
                     <a href="{{ route('faculty.enrollments.index') }}" class="hover:text-indigo-700">طلاب شعبي</a>
+                @endif
+                @can('viewAny', \App\Models\Exam::class)
+                    <a href="{{ route('exams.index') }}" class="hover:text-indigo-700">الاختبارات</a>
+                @endcan
+                @can('reviewResults', \App\Models\Exam::class)
+                    <a href="{{ route('results.review') }}" class="hover:text-indigo-700">مراجعة النتائج</a>
+                @endcan
+                @can('publishResults', \App\Models\Exam::class)
+                    <a href="{{ route('results.publish') }}" class="hover:text-indigo-700">نشر النتائج</a>
+                @endcan
+                @can('manage', \App\Models\AcademicSetting::class)
+                    <a href="{{ route('academic-settings.edit') }}" class="hover:text-indigo-700">الإعدادات الأكاديمية</a>
+                @endcan
+                @if (auth()->user()->hasPermission('results.viewOwn'))
+                    <a href="{{ route('student.results.index') }}" class="hover:text-indigo-700">نتائجي</a>
+                    <a href="{{ route('student.academic-record') }}" class="hover:text-indigo-700">سجلي الأكاديمي</a>
+                    <a href="{{ route('student.transcript') }}" class="hover:text-indigo-700">كشف الدرجات</a>
                 @endif
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
