@@ -23,7 +23,8 @@ class RolesAndPermissionsSeederTest extends TestCase
         // Phase 2: دور جديد إضافي، لا يستبدل supervisor
         $this->assertDatabaseHas('roles', ['slug' => 'faculty', 'is_system' => true]);
         $this->assertDatabaseHas('roles', ['slug' => 'student_affairs', 'is_system' => true]);
-        $this->assertEquals(6, Role::count());
+        $this->assertDatabaseHas('roles', ['slug' => 'eservices_officer', 'is_system' => true]);
+        $this->assertEquals(7, Role::count());
     }
 
     /** @test */
@@ -47,7 +48,7 @@ class RolesAndPermissionsSeederTest extends TestCase
         $this->seed(RolesAndPermissionsSeeder::class);
         $this->seed(RolesAndPermissionsSeeder::class);
 
-        $this->assertEquals(6, Role::count());
+        $this->assertEquals(7, Role::count());
         $this->assertEquals(Permission::count(), Permission::distinct('slug')->count('slug'));
     }
 }
