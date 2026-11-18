@@ -27,6 +27,10 @@
                 </div>
             </div>
 
+            @can('downloadTranscript', $serviceRequest)
+                <div class="mb-4"><a href="{{ route('staff.service-requests.transcript', $serviceRequest) }}" class="btn btn-primary">تنزيل كشف الدرجات (PDF)</a></div>
+            @endcan
+
             @can('updateStatus', $serviceRequest)
                 <div class="card">
                     <div class="card-header"><h5 class="mb-0">تحديث الحالة</h5></div>

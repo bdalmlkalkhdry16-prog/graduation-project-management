@@ -21,6 +21,14 @@ class StudentServiceRequestPolicy
         return $user->studentProfile?->id === $request->student_profile_id;
     }
 
+    /** الكشف الرسمي: لطلب كشف درجات مقبول/مكتمل فقط، للطالب صاحبه أو لمعالج الطلبات. */
+    public function downloadTranscript(User $user, StudentServiceRequest $request): bool
+    {
+        return $request->type === StudentServiceRequest::TYPE_TRANSCRIPT
+            && in_array($request->status, [StudentServiceRequest::STATUS_APPROVED, StudentServiceRequest::STATUS_COMPLETED], true)
+            && $this->view($user, $request);
+    }
+
     public function updateStatus(User $user, StudentServiceRequest $request): bool
     {
         return $user->hasPermission('service-requests.manageAll');

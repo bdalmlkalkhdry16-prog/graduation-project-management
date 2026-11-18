@@ -844,6 +844,11 @@ Route::middleware([
             [StaffServiceRequestController::class, 'show']
         )->name('show');
 
+        Route::get(
+            '/{serviceRequest}/transcript',
+            [StaffServiceRequestController::class, 'transcript']
+        )->name('transcript');
+
         Route::put(
             '/{serviceRequest}/status',
             [StaffServiceRequestController::class, 'updateStatus']
@@ -873,6 +878,11 @@ Route::middleware([
             '/',
             [StudentServiceRequestController::class, 'store']
         )->name('store');
+
+        Route::get(
+            '/{serviceRequest}/transcript',
+            [StudentServiceRequestController::class, 'transcript']
+        )->name('transcript');
 
         Route::get(
             '/{serviceRequest}',

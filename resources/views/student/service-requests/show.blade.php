@@ -24,6 +24,9 @@
                         <dt class="col-sm-3">تاريخ التقديم</dt>
                         <dd class="col-sm-9">{{ $serviceRequest->created_at->format('Y-m-d H:i') }}</dd>
                     </dl>
+                    @can('downloadTranscript', $serviceRequest)
+                        <a href="{{ route('student.service-requests.transcript', $serviceRequest) }}" class="btn btn-primary">تحميل كشف الدرجات (PDF)</a>
+                    @endcan
                     <a href="{{ route('student.service-requests.index') }}" class="btn btn-outline-secondary">رجوع</a>
                 </div>
             </div>

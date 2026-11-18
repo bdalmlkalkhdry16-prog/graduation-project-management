@@ -85,10 +85,9 @@ class RolesAndPermissionsSeeder extends Seeder
             // من Phase 2 بلا بيانات ولا دور مرتبط به).
             'staff' => [
                 'name' => 'موظف شؤون طلاب',
-                'description' => 'ينشئ ملفات الطلاب الرسمية بعد القبول، ويدير طلبات الخدمات',
+                'description' => 'ينشئ ملفات الطلاب الرسمية بعد القبول',
                 'permissions' => [
                     'student-profiles.manage',
-                    'service-requests.manageAll',
 
                       'rooms.manage',
                     'schedules.manage',
@@ -151,5 +150,10 @@ class RolesAndPermissionsSeeder extends Seeder
             $permissionIds = Permission::whereIn('slug', $data['permissions'])->pluck('id');
             $role->permissions()->syncWithoutDetaching($permissionIds);
         }
+
+        // E1: معالجة طلبات الخدمات صارت لدور موظف البوابة الإلكترونية وحده؛ تُسحب من الدور العام staff
+        // (syncWithoutDetaching لا يسحب شيئًا من قواعد بيانات قائمة، فنسحبها صراحةً).
+        $staff = Role::where('slug', 'staff')->first();
+        $staff?->permissions()->detach(Permission::where('slug', 'service-requests.manageAll')->pluck('id'));
     }
 }

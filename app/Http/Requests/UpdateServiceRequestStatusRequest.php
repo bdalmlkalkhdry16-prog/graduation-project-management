@@ -43,6 +43,16 @@ class UpdateServiceRequestStatusRequest extends FormRequest
                 return;
             }
 
+            if ($new === StudentServiceRequest::STATUS_APPROVED && $serviceRequest->type === StudentServiceRequest::TYPE_TRANSCRIPT) {
+                $check = app(\App\Services\StudyPlanCompletion::class)->check($serviceRequest->studentProfile);
+
+                if (! $check['eligible']) {
+                    $v->errors()->add('status', 'لا يمكن قبول طلب كشف الدرجات: '.$check['message']);
+
+                    return;
+                }
+            }
+
             if ($new === StudentServiceRequest::STATUS_REJECTED && ! filled($this->input('staff_notes'))) {
                 $v->errors()->add('staff_notes', 'سبب الرفض إلزامي في ملاحظات الموظف.');
             }

@@ -66,14 +66,13 @@ class ServiceRequestTest extends TestCase
     }
 
     /** @test */
-    public function transcript_and_appeal_stay_closed_until_their_own_phases()
+    public function the_appeal_stays_closed_until_its_own_phase()
     {
-        $this->submit('transcript')->assertSessionHasErrors('type');
         $this->submit('grade_appeal')->assertSessionHasErrors('type');
         $this->assertSame(0, StudentServiceRequest::count());
 
         $this->actingAs($this->studentUser)->get(route('student.service-requests.create'))->assertOk()
-            ->assertSee('شهادة قيد')->assertDontSee('كشف درجات')->assertDontSee('تظلم');
+            ->assertSee('شهادة قيد')->assertSee('كشف درجات')->assertDontSee('تظلم');
     }
 
     /** @test */

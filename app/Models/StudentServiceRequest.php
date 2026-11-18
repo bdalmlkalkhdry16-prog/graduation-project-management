@@ -28,8 +28,8 @@ class StudentServiceRequest extends Model
         self::TYPE_GRADE_APPEAL => 'تظلم على درجة',
     ];
 
-    /** أنواع لها شروط خاصة تُبنى في مراحل لاحقة (E2 كشف الدرجات، E3 التظلم) ولا تُفتح قبلها. */
-    const NOT_YET_AVAILABLE = [self::TYPE_TRANSCRIPT, self::TYPE_GRADE_APPEAL];
+    /** أنواع لها شروط خاصة تُبنى في مراحل لاحقة (E3 التظلم) ولا تُفتح قبلها. */
+    const NOT_YET_AVAILABLE = [self::TYPE_GRADE_APPEAL];
 
     /** الحالات المفتوحة (لم تُحسم بعد). */
     const OPEN_STATUSES = [self::STATUS_PENDING, self::STATUS_IN_PROGRESS];

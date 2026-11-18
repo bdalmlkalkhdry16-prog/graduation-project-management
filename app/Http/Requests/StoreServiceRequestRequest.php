@@ -27,6 +27,18 @@ class StoreServiceRequestRequest extends FormRequest
             }
 
             $profile = $this->user()->studentProfile;
+
+            // كشف الدرجات الرسمي: بعد إتمام الخطة الدراسية فقط
+            if ($profile && $this->input('type') === \App\Models\StudentServiceRequest::TYPE_TRANSCRIPT) {
+                $check = app(\App\Services\StudyPlanCompletion::class)->check($profile);
+
+                if (! $check['eligible']) {
+                    $v->errors()->add('type', 'كشف الدرجات يُطلب بعد إتمام الخطة الدراسية. '.$check['message']);
+
+                    return;
+                }
+            }
+
             $duplicate = $profile && $profile->serviceRequests()
                 ->where('type', $this->input('type'))
                 ->whereIn('status', \App\Models\StudentServiceRequest::OPEN_STATUSES)

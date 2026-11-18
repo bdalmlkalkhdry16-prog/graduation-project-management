@@ -41,4 +41,16 @@ class ServiceRequestController extends Controller
             ->route('staff.service-requests.show', $serviceRequest)
             ->with('success', 'تم تحديث حالة الطلب.');
     }
+
+    public function transcript(StudentServiceRequest $serviceRequest, \App\Services\AcademicRecordService $records, \App\Services\TranscriptPdf $pdf)
+    {
+        $this->authorize('downloadTranscript', $serviceRequest);
+
+        $record = $records->forStudent($serviceRequest->studentProfile);
+
+        return response($pdf->render($record), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="transcript-'.$record['student']->number_student.'.pdf"',
+        ]);
+    }
 }

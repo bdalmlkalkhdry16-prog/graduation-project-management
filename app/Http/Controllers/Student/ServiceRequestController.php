@@ -42,4 +42,16 @@ class ServiceRequestController extends Controller
 
         return view('student.service-requests.show', compact('serviceRequest'));
     }
+
+    public function transcript(StudentServiceRequest $serviceRequest, \App\Services\AcademicRecordService $records, \App\Services\TranscriptPdf $pdf)
+    {
+        $this->authorize('downloadTranscript', $serviceRequest);
+
+        $record = $records->forStudent($serviceRequest->studentProfile);
+
+        return response($pdf->render($record), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="transcript-'.$record['student']->number_student.'.pdf"',
+        ]);
+    }
 }
