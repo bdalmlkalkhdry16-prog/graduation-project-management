@@ -236,7 +236,7 @@ class ExamDistributionTest extends TestCase
         ])->assertSessionHasNoErrors();
 
         $this->assertEqualsCanonicalizing(
-            [], array_diff(AcademicSetting::pluck('key')->all(), [AcademicSetting::PASS_PERCENTAGE, AcademicSetting::GRADE_SCALE])
+            [], array_diff(AcademicSetting::pluck('key')->all(), [AcademicSetting::PASS_PERCENTAGE, AcademicSetting::GRADE_SCALE, AcademicSetting::APPEAL_WINDOW_DAYS])
         );
     }
 }

@@ -41,6 +41,25 @@ class StoreServiceRequestRequest extends FormRequest
                 }
             }
 
+            // شهادة القيد: وثيقة تثبت أن الطالب مقيَّد في تخصص ومستوى → قيد نشط وبرنامج ومستوى
+            if ($profile && $this->input('type') === \App\Models\StudentServiceRequest::TYPE_ENROLLMENT_CERTIFICATE
+                && ($profile->academic_status !== 'active' || ! $profile->program_id || ! $profile->current_level_id)) {
+                $v->errors()->add('type', 'شهادة القيد تُطلب للطالب المقيَّد (حالة أكاديمية نشطة) في تخصص ومستوى.');
+
+                return;
+            }
+
+            // إفادة التخرج: بعد إتمام الخطة الدراسية (حتى قبل صدور الشهادة الأصلية)
+            if ($profile && $this->input('type') === \App\Models\StudentServiceRequest::TYPE_GRADUATION_STATEMENT) {
+                $check = app(\App\Services\StudyPlanCompletion::class)->check($profile);
+
+                if (! $check['eligible']) {
+                    $v->errors()->add('type', 'إفادة التخرج تُطلب بعد إتمام الخطة الدراسية. '.$check['message']);
+
+                    return;
+                }
+            }
+
             // التظلم: على مقرر للطالب نفسه له درجة منشورة، وبلا تظلم مفتوح سابق على المقرر ذاته
             $isAppeal = $this->input('type') === \App\Models\StudentServiceRequest::TYPE_GRADE_APPEAL;
 

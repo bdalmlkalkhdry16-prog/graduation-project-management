@@ -17,6 +17,7 @@ class UpdateAcademicSettingsRequest extends FormRequest
     {
         return [
             'pass_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'appeal_window_days' => ['nullable', 'integer', 'min:1', 'max:365'],
             'scale' => ['nullable', 'array', 'max:15'],
             'scale.*.letter' => ['nullable', 'string', 'max:10'],
             'scale.*.min' => ['nullable', 'numeric', 'min:0', 'max:100'],

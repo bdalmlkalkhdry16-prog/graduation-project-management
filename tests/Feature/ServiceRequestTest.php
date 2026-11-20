@@ -45,13 +45,13 @@ class ServiceRequestTest extends TestCase
     /** @test */
     public function the_student_can_submit_each_available_type_and_sees_it_with_its_arabic_name()
     {
-        foreach (['enrollment_certificate', 'graduation_statement', 're_enrollment'] as $type) {
+        foreach (['enrollment_certificate', 're_enrollment'] as $type) {
             $this->submit($type)->assertSessionHasNoErrors();
             $this->assertDatabaseHas('student_service_requests', ['student_profile_id' => $this->profile->id, 'type' => $type, 'status' => 'pending']);
         }
 
         $this->actingAs($this->studentUser)->get(route('student.service-requests.index'))->assertOk()
-            ->assertSee('شهادة قيد')->assertSee('إفادة تخرج')->assertSee('إعادة قيد');
+            ->assertSee('شهادة قيد')->assertSee('إعادة قيد');
     }
 
     /** @test */

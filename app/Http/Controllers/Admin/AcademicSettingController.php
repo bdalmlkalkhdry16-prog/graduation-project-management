@@ -16,6 +16,7 @@ class AcademicSettingController extends Controller
 
         return view('settings.academic', [
             'passPercentage' => AcademicSetting::passPercentage(),
+            'appealWindowDays' => AcademicSetting::appealWindowDays(),
             'scale' => AcademicSetting::gradeScale(),
         ]);
     }
@@ -25,6 +26,7 @@ class AcademicSettingController extends Controller
         $userId = $request->user()->id;
 
         AcademicSetting::put(AcademicSetting::PASS_PERCENTAGE, $request->filled('pass_percentage') ? (float) $request->input('pass_percentage') : null, $userId);
+        AcademicSetting::put(AcademicSetting::APPEAL_WINDOW_DAYS, $request->filled('appeal_window_days') ? (int) $request->input('appeal_window_days') : null, $userId);
         AcademicSetting::put(AcademicSetting::GRADE_SCALE, $request->scale(), $userId);
 
         return back()->with('success', 'تم حفظ الإعدادات الأكاديمية.');

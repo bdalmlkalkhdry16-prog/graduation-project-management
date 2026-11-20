@@ -61,13 +61,17 @@ class StudentServiceRequest extends Model
 
     /**
      * تسجيلات الطالب التي يحق له التظلم عليها: لها درجة منشورة ضمن القائمة المثبتة للاختبار
-     * (يشمل المنسحب لاحقًا ما دامت نتائجه منشورة).
+     * (يشمل المنسحب لاحقًا ما دامت نتائجه منشورة)، وضمن مهلة التظلم إن ضُبطت في الإعدادات.
      */
     public static function appealableEnrollments(StudentProfile $profile)
     {
+        $days = AcademicSetting::appealWindowDays();
+
         return Enrollment::where('student_profile_id', $profile->id)
             ->whereHas('grades', fn ($g) => $g->whereNotNull('score')
-                ->whereHas('exam', fn ($e) => $e->where('result_status', Exam::STATUS_PUBLISHED))
+                ->whereHas('exam', fn ($e) => $e->where('result_status', Exam::STATUS_PUBLISHED)
+                    // مهلة التظلم (إن ضُبطت): نُشرت نتيجة واحدة على الأقل داخل المهلة
+                    ->when($days !== null, fn ($q) => $q->where('published_at', '>=', now()->subDays($days))))
                 ->whereIn('enrollment_id', ExamRosterEntry::select('enrollment_id')->whereColumn('exam_id', 'grades.exam_id')))
             ->with(['section.course', 'section.academicTerm.academicYear'])
             ->get();

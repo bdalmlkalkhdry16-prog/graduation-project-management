@@ -10,6 +10,10 @@
         <input type="number" step="0.01" min="0" max="100" name="pass_percentage" value="{{ old('pass_percentage', $passPercentage) }}" class="w-40 rounded-lg border border-slate-300 px-3 py-2">
     </div>
     <div>
+        <label class="block text-sm mb-1">مهلة التظلم على الدرجة (بالأيام من نشر النتيجة) — فارغة = بلا مهلة</label>
+        <input type="number" min="1" max="365" name="appeal_window_days" value="{{ old('appeal_window_days', $appealWindowDays) }}" class="w-40 rounded-lg border border-slate-300 px-3 py-2">
+    </div>
+    <div>
         <h2 class="font-bold mb-2">سلم التقديرات</h2>
         <p class="text-xs text-slate-500 mb-2">الصفوف الفارغة تُتجاهل. يجب أن يتضمن السلم تقديرًا حده الأدنى 0.</p>
         @php($rows = old('scale', $scale))
