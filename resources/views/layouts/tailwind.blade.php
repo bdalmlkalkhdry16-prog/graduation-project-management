@@ -34,6 +34,9 @@
                 @can('publishResults', \App\Models\Exam::class)
                     <a href="{{ route('results.publish') }}" class="hover:text-indigo-700">نشر النتائج</a>
                 @endcan
+                @can('viewAny', \App\Models\FeeSchedule::class)
+                    <a href="{{ route('fee-schedules.index') }}" class="hover:text-indigo-700">الرسوم الدراسية</a>
+                @endcan
                 @can('manage', \App\Models\AcademicSetting::class)
                     <a href="{{ route('academic-settings.edit') }}" class="hover:text-indigo-700">الإعدادات الأكاديمية</a>
                 @endcan

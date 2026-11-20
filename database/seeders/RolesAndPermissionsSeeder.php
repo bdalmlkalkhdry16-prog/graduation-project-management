@@ -120,6 +120,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'exams.manage',            // إنشاء/تعديل اختبارات أي شعبة
             'results.review',          // مراجعة واعتماد/رفض النتائج
             'results.publish',         // نشر النتائج المعتمدة
+            'fees.manage',          // تحديد أسعار الرسوم لكل قسم (غير ممنوحة لأي دور؛ المدير فقط)
+            'fees.view',            // عرض أسعار الرسوم
             'exams.adjustDistribution', // تعديل إداري لتوزيع درجات شعبة بعد التقديم (بسبب)
             'grades.correct',          // تصحيح معتمد للدرجات بعد الاعتماد/النشر
             'academic-settings.manage', // سلم التقديرات ونسبة النجاح

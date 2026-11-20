@@ -1150,6 +1150,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('staff/students/{studentProfile}/academic-record', [StaffAcademicRecordController::class, 'show'])->name('staff.academic-record');
 
+    Route::resource('fee-schedules', \App\Http\Controllers\FeeScheduleController::class)->except('show');
+
     Route::get('academic-settings', [AcademicSettingController::class, 'edit'])->name('academic-settings.edit');
     Route::put('academic-settings', [AcademicSettingController::class, 'update'])->name('academic-settings.update');
 });
