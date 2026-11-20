@@ -56,6 +56,8 @@ class RolesAndPermissionsSeeder extends Seeder
                     'enrollments.viewOwn',
                     // Phase 7 — الطالب يرى نتائجه المنشورة وسجله فقط
                     'results.viewOwn',
+                    // F1b — الطالب يرى رسومه ودفعاته
+                    'fees.viewOwn',
                 ],
             ],
             // Phase 2 — Student/Faculty/Staff Central Profiles.
@@ -104,6 +106,16 @@ class RolesAndPermissionsSeeder extends Seeder
                     'enrollments.manage',
                 ],
             ],
+            // F1b — المحاسب: يولّد رسوم الطلاب ويسجّل المدفوعات؛ لا يحدد الأسعار ولا يلمس الدرجات.
+            'accountant' => [
+                'name' => 'محاسب',
+                'description' => 'يولّد رسوم الطلاب ويسجّل المدفوعات ويصدر سندات القبض',
+                'permissions' => [
+                    'fees.view',
+                    'fees.generate',
+                    'payments.record',
+                ],
+            ],
             // E1 — موظف مخصص للبوابة الإلكترونية: يعالج طلبات الخدمات فقط.
             'eservices_officer' => [
                 'name' => 'موظف البوابة الإلكترونية',
@@ -121,7 +133,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'results.review',          // مراجعة واعتماد/رفض النتائج
             'results.publish',         // نشر النتائج المعتمدة
             'fees.manage',          // تحديد أسعار الرسوم لكل قسم (غير ممنوحة لأي دور؛ المدير فقط)
-            'fees.view',            // عرض أسعار الرسوم
+            'fees.view',            // عرض أسعار الرسوم (للمحاسب)
+            'fees.generate',        // توليد رسوم الطلاب للسنة الدراسية (للمحاسب)
+            'payments.record',      // تسجيل المدفوعات وإصدار سندات القبض (للمحاسب)
+            'fees.viewOwn',         // الطالب يرى رسومه ودفعاته
             'exams.adjustDistribution', // تعديل إداري لتوزيع درجات شعبة بعد التقديم (بسبب)
             'grades.correct',          // تصحيح معتمد للدرجات بعد الاعتماد/النشر
             'academic-settings.manage', // سلم التقديرات ونسبة النجاح

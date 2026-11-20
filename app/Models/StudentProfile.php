@@ -71,6 +71,11 @@ class StudentProfile extends Model
     /**
      * Phase 5 — Student Affairs.
      */
+    public function studentFees(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StudentFee::class);
+    }
+
     public function serviceRequests(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(StudentServiceRequest::class);

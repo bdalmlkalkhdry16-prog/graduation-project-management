@@ -118,7 +118,7 @@ class FeeScheduleTest extends TestCase
         $holders = \DB::table('role_permissions')
             ->join('permissions', 'permissions.id', '=', 'role_permissions.permission_id')
             ->join('roles', 'roles.id', '=', 'role_permissions.role_id')
-            ->where('roles.is_system', true)->whereIn('permissions.slug', ['fees.manage', 'fees.view'])->pluck('roles.slug')->unique()->all();
+            ->where('roles.is_system', true)->where('permissions.slug', 'fees.manage')->pluck('roles.slug')->unique()->all();
         $this->assertSame([], array_values(array_diff($holders, ['admin'])));
     }
 

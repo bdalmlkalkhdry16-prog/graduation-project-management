@@ -51,6 +51,11 @@ class FeeScheduleController extends Controller
     public function destroy(FeeSchedule $feeSchedule): RedirectResponse
     {
         $this->authorize('manage', FeeSchedule::class);
+
+        if ($feeSchedule->studentFees()->exists()) {
+            return back()->withErrors(['fee' => 'لا يمكن حذف سعر ولّد رسومًا للطلاب.']);
+        }
+
         $feeSchedule->delete();
 
         return redirect()->route('fee-schedules.index')->with('success', 'تم حذف سعر الرسوم.');

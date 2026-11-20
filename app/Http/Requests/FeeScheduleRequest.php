@@ -29,6 +29,19 @@ class FeeScheduleRequest extends FormRequest
         ];
     }
 
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($v) {
+            $current = $this->route('fee_schedule');
+
+            // سعر ولّد رسومًا للطلاب: لا يُنقل لقسم/سنة أخرى (المبالغ المثبتة عند الطلاب لا تتأثر بتغيير المبلغ)
+            if ($current && $current->studentFees()->exists()
+                && ((int) $this->input('department_id') !== $current->department_id || (int) $this->input('academic_year_id') !== $current->academic_year_id)) {
+                $v->errors()->add('department_id', 'لا يمكن تغيير القسم أو السنة لسعر ولّد رسومًا للطلاب.');
+            }
+        });
+    }
+
     public function messages(): array
     {
         return [

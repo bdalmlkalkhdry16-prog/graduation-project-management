@@ -1156,6 +1156,16 @@ Route::middleware('auth')->group(function () {
     Route::put('academic-settings', [AcademicSettingController::class, 'update'])->name('academic-settings.update');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('accounting/fees', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'index'])->name('accounting.fees.index');
+    Route::post('accounting/fees/generate', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'generate'])->name('accounting.fees.generate');
+    Route::get('accounting/fees/{studentFee}', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'show'])->name('accounting.fees.show');
+    Route::post('accounting/fees/{studentFee}/payments', [\App\Http\Controllers\Accounting\PaymentController::class, 'store'])->name('accounting.payments.store');
+    Route::get('payments/{payment}/receipt', [\App\Http\Controllers\Accounting\PaymentController::class, 'receipt'])->name('payments.receipt');
+});
+
+Route::middleware(['auth', 'permission:fees.viewOwn'])->get('my/fees', [\App\Http\Controllers\Student\FeeController::class, 'index'])->name('student.fees.index');
+
 Route::middleware(['auth', 'permission:results.viewOwn'])->prefix('my')->name('student.')->group(function () {
     Route::get('results', [StudentResultController::class, 'index'])->name('results.index');
     Route::get('academic-record', [StudentAcademicRecordController::class, 'record'])->name('academic-record');

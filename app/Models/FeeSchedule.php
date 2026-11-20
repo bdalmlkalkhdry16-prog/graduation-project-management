@@ -27,6 +27,11 @@ class FeeSchedule extends Model
         return self::CURRENCIES[$currency] ?? $currency;
     }
 
+    public function studentFees(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StudentFee::class);
+    }
+
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);

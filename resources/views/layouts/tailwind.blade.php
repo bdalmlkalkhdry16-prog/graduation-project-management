@@ -40,6 +40,12 @@
                 @can('manage', \App\Models\AcademicSetting::class)
                     <a href="{{ route('academic-settings.edit') }}" class="hover:text-indigo-700">الإعدادات الأكاديمية</a>
                 @endcan
+                @can('viewAny', \App\Models\StudentFee::class)
+                    <a href="{{ route('accounting.fees.index') }}" class="hover:text-indigo-700">رسوم الطلاب</a>
+                @endcan
+                @if (auth()->user()->hasPermission('fees.viewOwn'))
+                    <a href="{{ route('student.fees.index') }}" class="hover:text-indigo-700">رسومي</a>
+                @endif
                 @if (auth()->user()->hasPermission('results.viewOwn'))
                     <a href="{{ route('student.results.index') }}" class="hover:text-indigo-700">نتائجي</a>
                     <a href="{{ route('student.academic-record') }}" class="hover:text-indigo-700">سجلي الأكاديمي</a>
