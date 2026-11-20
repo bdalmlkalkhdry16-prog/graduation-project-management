@@ -24,7 +24,10 @@ class ServiceRequestController extends Controller
     {
         $this->authorize('create', StudentServiceRequest::class);
 
-        return view('student.service-requests.create', ['types' => StudentServiceRequest::availableTypes()]);
+        return view('student.service-requests.create', [
+            'types' => StudentServiceRequest::availableTypes(),
+            'appealable' => ($profile = auth()->user()->studentProfile) ? StudentServiceRequest::appealableEnrollments($profile) : collect(),
+        ]);
     }
 
     public function store(StoreServiceRequestRequest $request): RedirectResponse

@@ -13,6 +13,11 @@
                         <dt class="col-sm-3">الحالة</dt>
                         <dd class="col-sm-9">{{ \App\Models\StudentServiceRequest::statusLabel($serviceRequest->status) }}</dd>
 
+                        @if ($serviceRequest->enrollment)
+                            <dt class="col-sm-3">المقرر</dt>
+                            <dd class="col-sm-9">{{ $serviceRequest->enrollment->section->course->name_ar }}</dd>
+                        @endif
+
                         <dt class="col-sm-3">التفاصيل</dt>
                         <dd class="col-sm-9">{{ $serviceRequest->description ?? '-' }}</dd>
 

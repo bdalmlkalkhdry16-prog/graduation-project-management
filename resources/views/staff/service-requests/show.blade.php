@@ -13,6 +13,11 @@
                         <dt class="col-sm-3">النوع</dt>
                         <dd class="col-sm-9">{{ \App\Models\StudentServiceRequest::typeLabel($serviceRequest->type) }}</dd>
 
+                        @if ($serviceRequest->enrollment)
+                            <dt class="col-sm-3">المقرر المتظلَّم عليه</dt>
+                            <dd class="col-sm-9">{{ $serviceRequest->enrollment->section->course->name_ar }} ({{ $serviceRequest->enrollment->section->course->code }}) — {{ $serviceRequest->enrollment->section->academicTerm?->label() }}</dd>
+                        @endif
+
                         <dt class="col-sm-3">الوصف</dt>
                         <dd class="col-sm-9">{{ $serviceRequest->description ?? '-' }}</dd>
 

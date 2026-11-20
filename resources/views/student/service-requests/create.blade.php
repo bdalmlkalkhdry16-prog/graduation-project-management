@@ -33,6 +33,19 @@
                             </select>
                         </div>
 
+                        <div class="mb-3" id="appeal-course" style="display:none">
+                            <label class="form-label">المقرر المتظلَّم عليه</label>
+                            <select name="enrollment_id" class="form-select">
+                                <option value="">— اختر المقرر —</option>
+                                @foreach ($appealable as $enrollment)
+                                    <option value="{{ $enrollment->id }}" @selected((string) old('enrollment_id') === (string) $enrollment->id)>
+                                        {{ $enrollment->section->course->name_ar }} — {{ $enrollment->section->academicTerm?->label() }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="form-text">تظهر المقررات التي لها درجة منشورة فقط. اذكر سبب التظلم في التفاصيل.</div>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label">تفاصيل إضافية</label>
                             <textarea name="description" class="form-control" rows="4">{{ old('description') }}</textarea>
@@ -48,4 +61,14 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+    (function () {
+        var type = document.querySelector('select[name="type"]');
+        var box = document.getElementById('appeal-course');
+        function toggle() { box.style.display = type.value === 'grade_appeal' ? '' : 'none'; }
+        type.addEventListener('change', toggle); toggle();
+    })();
+</script>
+@endpush
 @endsection

@@ -23,6 +23,12 @@ class AcademicTerm extends Model
         ];
     }
 
+    /** اسم الفصل للعرض: العام — الفصل. */
+    public function label(): string
+    {
+        return ($this->academicYear->name ?? '').' — '.\App\Services\AcademicRecordService::semesterLabel($this->semester);
+    }
+
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class);

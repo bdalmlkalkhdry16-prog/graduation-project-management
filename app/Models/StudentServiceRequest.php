@@ -28,8 +28,8 @@ class StudentServiceRequest extends Model
         self::TYPE_GRADE_APPEAL => 'تظلم على درجة',
     ];
 
-    /** أنواع لها شروط خاصة تُبنى في مراحل لاحقة (E3 التظلم) ولا تُفتح قبلها. */
-    const NOT_YET_AVAILABLE = [self::TYPE_GRADE_APPEAL];
+    /** أنواع مغلقة مؤقتًا (لا شيء حاليًا). */
+    const NOT_YET_AVAILABLE = [];
 
     /** الحالات المفتوحة (لم تُحسم بعد). */
     const OPEN_STATUSES = [self::STATUS_PENDING, self::STATUS_IN_PROGRESS];
@@ -44,6 +44,7 @@ class StudentServiceRequest extends Model
     ];
 
     protected $fillable = [
+        'enrollment_id',
         'student_profile_id',
         'type',
         'description',
@@ -51,6 +52,26 @@ class StudentServiceRequest extends Model
         'handled_by',
         'staff_notes',
     ];
+
+    /** تسجيل المقرر المتظلَّم عليه (لطلبات التظلم فقط). */
+    public function enrollment(): BelongsTo
+    {
+        return $this->belongsTo(Enrollment::class);
+    }
+
+    /**
+     * تسجيلات الطالب التي يحق له التظلم عليها: لها درجة منشورة ضمن القائمة المثبتة للاختبار
+     * (يشمل المنسحب لاحقًا ما دامت نتائجه منشورة).
+     */
+    public static function appealableEnrollments(StudentProfile $profile)
+    {
+        return Enrollment::where('student_profile_id', $profile->id)
+            ->whereHas('grades', fn ($g) => $g->whereNotNull('score')
+                ->whereHas('exam', fn ($e) => $e->where('result_status', Exam::STATUS_PUBLISHED))
+                ->whereIn('enrollment_id', ExamRosterEntry::select('enrollment_id')->whereColumn('exam_id', 'grades.exam_id')))
+            ->with(['section.course', 'section.academicTerm.academicYear'])
+            ->get();
+    }
 
     public function studentProfile(): BelongsTo
     {
