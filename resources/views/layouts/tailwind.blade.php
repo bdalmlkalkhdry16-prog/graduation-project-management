@@ -14,6 +14,12 @@
             <a href="{{ url('/dashboard') }}" class="text-lg font-bold text-indigo-700">كلية المجتمع عمران</a>
             <nav class="flex flex-wrap items-center gap-4 text-sm font-medium">
                 <a href="{{ url('/dashboard') }}" class="hover:text-indigo-700">لوحة التحكم</a>
+                {{-- روابط النظام القديم (مشاريع التخرج والإشعارات والملف الشخصي) --}}
+                @if (auth()->user()->isAdmin() || auth()->user()->isSupervisor() || auth()->user()->isStudent())
+                    <a href="{{ route('projects.index') }}" class="hover:text-indigo-700">مشاريع التخرج</a>
+                @endif
+                <a href="{{ route('notifications.index') }}" class="hover:text-indigo-700">الإشعارات</a>
+                <a href="{{ route('profile.show') }}" class="hover:text-indigo-700">ملفي</a>
                 @if (auth()->user()->hasPermission('enrollments.manage'))
                     <a href="{{ route('staff.enrollments.index') }}" class="hover:text-indigo-700">التسجيل في الشعب</a>
                     <a href="{{ route('staff.enrollments.students') }}" class="hover:text-indigo-700">سجل الطلاب</a>

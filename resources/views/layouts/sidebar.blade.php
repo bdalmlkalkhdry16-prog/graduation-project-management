@@ -96,4 +96,13 @@
             <i class="fas fa-question-circle"></i> دليل الاستخدام
         </a>
     @endif
+
+    {{-- مستخدمون بأدوار أكاديمية/إدارية جديدة (موظف، مدرس، محاسب...) لا تغطيهم الكتل أعلاه --}}
+    @if(! $user->isAdmin() && ! $user->isSupervisor() && ! $user->isStudent())
+        <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+            <i class="fas fa-tachometer-alt"></i> لوحة التحكم
+        </a>
+    @endif
+
+    @include('layouts._academic-links', ['variant' => 'sidebar'])
 @endauth

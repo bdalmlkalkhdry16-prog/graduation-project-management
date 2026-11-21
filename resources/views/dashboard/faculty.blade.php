@@ -390,4 +390,5 @@
 </style>
 @endpush
 
+@include('layouts._academic-links', ['variant' => 'cards'])
 @endsection

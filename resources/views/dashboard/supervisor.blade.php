@@ -230,4 +230,5 @@
         </div>
     </div>
 </div>
+@include('layouts._academic-links', ['variant' => 'cards'])
 @endsection

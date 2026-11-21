@@ -129,4 +129,5 @@
     </div>
 
 </div>
+@include('layouts._academic-links', ['variant' => 'cards', 'exclude' => ['staff.student-profiles.index', 'staff.service-requests.index', 'staff.enrollments.index', 'staff.rooms.index', 'staff.schedules.index', 'staff.attendance.index']])
 @endsection
