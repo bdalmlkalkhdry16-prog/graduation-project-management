@@ -2,6 +2,7 @@
 @section('title', 'نتائجي')
 @section('content')
 <h1 class="text-2xl font-bold mb-6">نتائجي المنشورة</h1>
+@include('student._withheld-notice')
 @if (! $profile)
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">لا يوجد ملف أكاديمي مرتبط بحسابك بعد.</div>
 @else

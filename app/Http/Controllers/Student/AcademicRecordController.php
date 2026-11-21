@@ -28,6 +28,7 @@ class AcademicRecordController extends Controller
     {
         $record = $this->recordOrNull();
         abort_unless($record, 404, 'لا يوجد ملف أكاديمي مرتبط بحسابك.');
+        abort_if($record['withheld_years']->isNotEmpty(), 403, 'لا يمكن إصدار الكشف قبل سداد الرسوم المستحقة.');
 
         return response($pdf->render($record), 200, [
             'Content-Type' => 'application/pdf',
@@ -39,6 +40,6 @@ class AcademicRecordController extends Controller
     {
         $profile = auth()->user()->studentProfile;
 
-        return $profile ? $this->service->forStudent($profile) : null;
+        return $profile ? $this->service->forStudent($profile, withholdUnpaid: true) : null;
     }
 }

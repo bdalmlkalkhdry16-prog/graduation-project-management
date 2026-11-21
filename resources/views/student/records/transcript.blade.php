@@ -7,6 +7,8 @@
     <a href="{{ route('student.academic-record') }}" class="rounded-lg border border-slate-300 bg-white px-4 py-2 hover:bg-slate-100">السجل الأكاديمي الكامل</a>
 </div>
 
+@include('student._withheld-notice', ['withheld' => $record['withheld_years'] ?? collect()])
+
 @if (! $record)
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">لا يوجد ملف أكاديمي مرتبط بحسابك بعد.</div>
 @else

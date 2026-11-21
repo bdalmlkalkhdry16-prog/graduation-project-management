@@ -13,6 +13,8 @@ class ResultController extends Controller
     {
         $profile = auth()->user()->studentProfile;
 
+        $withheld = $profile ? app(\App\Services\FeeStatus::class)->withheldYears($profile) : collect();
+
         $grades = $profile
             ? Grade::whereNotNull('score')
                 // درجة تُعرض فقط لعضو في القائمة المثبتة؛ والمنسحب لاحقًا تبقى نتائجه المنشورة
@@ -21,10 +23,12 @@ class ResultController extends Controller
                 ->whereHas('exam', fn ($q) => $q->published())
                 ->with(['exam.section.course', 'exam.section.academicTerm.academicYear'])
                 ->get()
+                // نتائج السنوات غير المسددة رسومها محجوبة
+                ->reject(fn ($g) => $withheld->contains('id', $g->exam->section->academicTerm?->academic_year_id))
                 ->sortByDesc(fn ($g) => $g->exam->published_at)
                 ->values()
             : collect();
 
-        return view('student.results.index', compact('grades', 'profile'));
+        return view('student.results.index', compact('grades', 'profile', 'withheld'));
     }
 }

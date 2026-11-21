@@ -50,6 +50,8 @@ class ServiceRequestController extends Controller
     {
         $this->authorize('downloadTranscript', $serviceRequest);
 
+        abort_if(app(\App\Services\FeeStatus::class)->withheldYears($serviceRequest->studentProfile)->isNotEmpty(), 403, 'لا يمكن تسلّم الكشف الرسمي قبل سداد الرسوم المستحقة.');
+
         $record = $records->forStudent($serviceRequest->studentProfile);
 
         return response($pdf->render($record), 200, [

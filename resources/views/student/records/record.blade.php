@@ -8,6 +8,8 @@
     @endempty
 </div>
 
+@include('student._withheld-notice', ['withheld' => $record['withheld_years'] ?? collect()])
+
 @if (! $record)
     <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800">لا يوجد ملف أكاديمي مرتبط بحسابك بعد.</div>
 @else

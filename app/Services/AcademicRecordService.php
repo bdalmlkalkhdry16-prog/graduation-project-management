@@ -22,8 +22,13 @@ use App\Models\StudentProfile;
  */
 class AcademicRecordService
 {
-    public function forStudent(StudentProfile $profile): array
+    /**
+     * @param  bool  $withholdUnpaid  للعرض على الطالب نفسه: تُستبعد نتائج السنوات غير المسددة رسومها
+     *                                (فلا تتسرّب عبر المعدل أيضًا). الموظفون وحسابات الإتمام يستخدمون false.
+     */
+    public function forStudent(StudentProfile $profile, bool $withholdUnpaid = false): array
     {
+        $withheld = $withholdUnpaid ? app(FeeStatus::class)->withheldYears($profile) : collect();
         $scale = AcademicSetting::gradeScale();
         $passPercentage = AcademicSetting::passPercentage();
 
@@ -32,6 +37,10 @@ class AcademicRecordService
             ->get();
 
         // الاختبارات التي ثُبِّت فيها كل تسجيل (قائمة التقديم)
+        if ($withheld->isNotEmpty()) {
+            $enrollments = $enrollments->reject(fn (Enrollment $e) => $withheld->contains('id', $e->section->academicTerm?->academic_year_id))->values();
+        }
+
         $rosterExamIds = ExamRosterEntry::whereIn('enrollment_id', $enrollments->pluck('id'))
             ->get()->groupBy('enrollment_id')->map->pluck('exam_id');
 
@@ -72,6 +81,7 @@ class AcademicRecordService
             'has_scale' => $scale !== [],
             'pass_percentage' => $passPercentage,
             'issued_at' => now(),
+            'withheld_years' => $withheld,
         ];
     }
 
