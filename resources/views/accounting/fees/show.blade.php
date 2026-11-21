@@ -21,6 +21,21 @@
     @endunless
 @endcan
 
+@can('releaseResults', \App\Models\StudentFee::class)
+    <form method="POST" action="{{ route('accounting.fees.release-results', $fee) }}" class="mb-6 flex flex-wrap items-end gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
+        @csrf
+        @if ($fee->resultsReleased())
+            <p class="grow">رُفع الحجب استثناءً بتاريخ {{ $fee->results_released_at->format('Y-m-d') }} — السبب: {{ $fee->results_release_reason }}</p>
+            <input type="hidden" name="release" value="0">
+            <button class="rounded-lg bg-slate-700 px-4 py-2 text-white">إعادة الحجب</button>
+        @else
+            <div class="grow"><label class="mb-1 block">استثناء إداري: رفع حجب النتائج رغم عدم السداد (سبب مطلوب)</label><input name="reason" required minlength="5" class="w-full rounded-lg border border-slate-300 px-3 py-2"></div>
+            <input type="hidden" name="release" value="1">
+            <button class="rounded-lg bg-amber-600 px-4 py-2 text-white">رفع الحجب</button>
+        @endif
+    </form>
+@endcan
+
 <h2 class="mb-2 font-bold">الدفعات</h2>
 <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
     <table class="w-full text-sm">

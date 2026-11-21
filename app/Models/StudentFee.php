@@ -11,11 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class StudentFee extends Model
 {
-    protected $fillable = ['student_profile_id', 'academic_year_id', 'fee_schedule_id', 'amount', 'currency', 'generated_by'];
+    protected $fillable = ['student_profile_id', 'academic_year_id', 'fee_schedule_id', 'amount', 'currency', 'generated_by', 'results_released_at', 'results_released_by', 'results_release_reason'];
 
     protected function casts(): array
     {
-        return ['amount' => 'decimal:2'];
+        return ['amount' => 'decimal:2', 'results_released_at' => 'datetime'];
     }
 
     public function studentProfile(): BelongsTo
@@ -31,6 +31,11 @@ class StudentFee extends Model
     public function feeSchedule(): BelongsTo
     {
         return $this->belongsTo(FeeSchedule::class);
+    }
+
+    public function resultsReleased(): bool
+    {
+        return $this->results_released_at !== null;
     }
 
     public function payments(): HasMany

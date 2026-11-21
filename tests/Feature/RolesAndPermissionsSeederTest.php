@@ -25,7 +25,7 @@ class RolesAndPermissionsSeederTest extends TestCase
         $this->assertDatabaseHas('roles', ['slug' => 'student_affairs', 'is_system' => true]);
         $this->assertDatabaseHas('roles', ['slug' => 'eservices_officer', 'is_system' => true]);
         $this->assertDatabaseHas('roles', ['slug' => 'accountant', 'is_system' => true]);
-        $this->assertEquals(8, Role::count());
+        $this->assertEquals(9, Role::count());
     }
 
     /** @test */
@@ -49,7 +49,7 @@ class RolesAndPermissionsSeederTest extends TestCase
         $this->seed(RolesAndPermissionsSeeder::class);
         $this->seed(RolesAndPermissionsSeeder::class);
 
-        $this->assertEquals(8, Role::count());
+        $this->assertEquals(9, Role::count());
         $this->assertEquals(Permission::count(), Permission::distinct('slug')->count('slug'));
     }
 }

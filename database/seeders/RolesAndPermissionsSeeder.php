@@ -116,6 +116,20 @@ class RolesAndPermissionsSeeder extends Seeder
                     'payments.record',
                 ],
             ],
+            // الكنترول — لجنة/وحدة الامتحانات والنتائج: دورة اعتماد النتائج كاملة بفصل المهام
+            // (المدرس يُدخل، والكنترول يراجع ويعتمد وينشر ويصحّح بسبب مسجَّل). لا يملك الرسوم ولا السياسات الأكاديمية.
+            'control' => [
+                'name' => 'الكنترول',
+                'description' => 'مراجعة النتائج واعتمادها ونشرها وتصحيحها وتعديل توزيع الدرجات، والاطلاع على السجل الأكاديمي',
+                'permissions' => [
+                    'exams.manage',
+                    'results.review',
+                    'results.publish',
+                    'grades.correct',
+                    'exams.adjustDistribution',
+                    'academic-records.viewAll',
+                ],
+            ],
             // E1 — موظف مخصص للبوابة الإلكترونية: يعالج طلبات الخدمات فقط.
             'eservices_officer' => [
                 'name' => 'موظف البوابة الإلكترونية',

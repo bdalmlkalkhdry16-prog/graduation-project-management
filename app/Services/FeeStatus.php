@@ -18,7 +18,7 @@ class FeeStatus
     public function withheldYears(StudentProfile $profile): Collection
     {
         return $profile->studentFees()->with(['academicYear', 'payments'])->get()
-            ->reject(fn (StudentFee $fee) => $fee->isSettled())
+            ->reject(fn (StudentFee $fee) => $fee->resultsReleased() || $fee->isSettled())
             ->map->academicYear
             ->unique('id')
             ->sortBy('year')

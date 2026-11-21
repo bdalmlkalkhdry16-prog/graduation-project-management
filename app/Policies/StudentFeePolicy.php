@@ -24,6 +24,12 @@ class StudentFeePolicy
         return $user->hasPermission('fees.generate');
     }
 
+    /** رفع حجب النتائج استثناءً: المدير فقط (يمر عبر Gate::before)، ولا يُمنح لأي دور. */
+    public function releaseResults(User $user): bool
+    {
+        return false;
+    }
+
     public function recordPayment(User $user): bool
     {
         return $user->hasPermission('payments.record');

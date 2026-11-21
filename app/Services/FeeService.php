@@ -65,6 +65,17 @@ class FeeService
         return $result;
     }
 
+    /** استثناء إداري برفع الحجب عن نتائج رسم معيّن (بسبب إلزامي) أو إلغاؤه. */
+    public function setResultsRelease(StudentFee $fee, bool $release, ?string $reason, User $by): StudentFee
+    {
+        $fee->update($release
+            ? ['results_released_at' => now(), 'results_released_by' => $by->id, 'results_release_reason' => $reason]
+            : ['results_released_at' => null, 'results_released_by' => null, 'results_release_reason' => null]);
+        ActivityLog::log($by->id, $release ? 'student_fee.results_released' : 'student_fee.results_release_revoked', StudentFee::class, $fee->id, null, ['reason' => $reason]);
+
+        return $fee;
+    }
+
     /** يسجّل دفعة بسند قبض؛ لا تتجاوز المتبقي، وبعملة الرسم نفسها. */
     public function recordPayment(StudentFee $fee, float|string $amount, string $paidAt, ?string $notes, User $by): Payment
     {

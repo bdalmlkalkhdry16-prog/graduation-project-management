@@ -47,6 +47,16 @@ class StudentFeeController extends Controller
         return back()->with('success', "تم توليد {$result['created']} رسم، وتخطي {$result['skipped_existing']} مولَّد سابقًا، و{$result['no_price']} بلا سعر لقسمهم.");
     }
 
+    public function releaseResults(\Illuminate\Http\Request $request, StudentFee $studentFee): \Illuminate\Http\RedirectResponse
+    {
+        $this->authorize('releaseResults', StudentFee::class);
+        $release = $request->boolean('release');
+        $data = $request->validate(['reason' => [$release ? 'required' : 'nullable', 'string', 'min:5', 'max:1000']], ['reason.required' => 'سبب الاستثناء مطلوب.', 'reason.min' => 'سبب الاستثناء قصير جدًا.']);
+        $this->fees->setResultsRelease($studentFee, $release, $data['reason'] ?? null, $request->user());
+
+        return back()->with('success', $release ? 'تم رفع حجب النتائج عن هذا الرسم.' : 'أُعيد حجب النتائج حتى السداد.');
+    }
+
     public function show(StudentFee $studentFee): View
     {
         $this->authorize('view', $studentFee);

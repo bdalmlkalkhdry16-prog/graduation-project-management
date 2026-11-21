@@ -250,10 +250,11 @@ class ResultWorkflowTest extends TestCase
         $this->assertSame(['faculty'], $holders('exams.manageOwn'));
         $this->assertSame(['faculty'], $holders('grades.enterOwn'));
         $this->assertSame(['student'], $holders('results.viewOwn'));
-        foreach (['exams.manage', 'results.review', 'results.publish', 'grades.correct', 'academic-settings.manage', 'academic-records.viewAll'] as $perm) {
-            $this->assertTrue(Permission::where('slug', $perm)->exists(), "$perm يجب أن تكون موجودة");
-            $this->assertSame([], $holders($perm), "$perm لا تُمنح لأي دور تلقائيًا");
+        // دور الكنترول وحده يحمل صلاحيات اعتماد النتائج؛ والسياسات الأكاديمية تبقى للمدير
+        foreach (['exams.manage', 'results.review', 'results.publish', 'grades.correct', 'academic-records.viewAll'] as $perm) {
+            $this->assertSame(['control'], $holders($perm), "$perm للكنترول وحده");
         }
+        $this->assertSame([], $holders('academic-settings.manage'));
 
         // إعادة تشغيل الـ seeder آمنة (idempotent)
         $this->seed(RolesAndPermissionsSeeder::class);
