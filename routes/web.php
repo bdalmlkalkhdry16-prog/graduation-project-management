@@ -1162,6 +1162,7 @@ Route::middleware('auth')->group(function () {
     Route::post('accounting/fees/{studentFee}/release-results', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'releaseResults'])->name('accounting.fees.release-results');
     Route::get('accounting/fees/{studentFee}', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'show'])->name('accounting.fees.show');
     Route::post('accounting/fees/{studentFee}/payments', [\App\Http\Controllers\Accounting\PaymentController::class, 'store'])->name('accounting.payments.store');
+    Route::post('payments/{payment}/void', [\App\Http\Controllers\Accounting\PaymentController::class, 'void'])->name('payments.void');
     Route::get('payments/{payment}/receipt', [\App\Http\Controllers\Accounting\PaymentController::class, 'receipt'])->name('payments.receipt');
 });
 

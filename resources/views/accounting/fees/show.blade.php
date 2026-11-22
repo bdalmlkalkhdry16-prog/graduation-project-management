@@ -42,10 +42,20 @@
         <thead class="bg-slate-50 text-slate-600"><tr><th class="px-4 py-3 text-right">السند</th><th class="px-4 py-3 text-right">التاريخ</th><th class="px-4 py-3 text-right">المبلغ</th><th class="px-4 py-3 text-right">سجّلها</th><th class="px-4 py-3"></th></tr></thead>
         <tbody class="divide-y divide-slate-100">
         @forelse ($fee->payments as $p)
-            <tr>
-                <td class="px-4 py-3">{{ $p->receipt_number }}</td><td class="px-4 py-3">{{ $p->paid_at->format('Y-m-d') }}</td>
+            <tr @class(['bg-slate-50 text-slate-400 line-through' => $p->isVoided()])>
+                <td class="px-4 py-3">{{ $p->receipt_number }}@if ($p->isVoided()) <span class="no-underline text-red-600">(ملغاة: {{ $p->void_reason }})</span>@endif</td><td class="px-4 py-3">{{ $p->paid_at->format('Y-m-d') }}</td>
                 <td class="px-4 py-3">{{ number_format($p->amount, 2) }} {{ $fee->currency }}</td><td class="px-4 py-3">{{ $p->recordedBy?->name }}</td>
-                <td class="px-4 py-3 text-left"><a href="{{ route('payments.receipt', $p) }}" class="text-indigo-600 hover:underline">سند القبض</a></td>
+                <td class="px-4 py-3 text-left">
+                    <a href="{{ route('payments.receipt', $p) }}" class="text-indigo-600 hover:underline">سند القبض</a>
+                    @can('voidPayment', \App\Models\StudentFee::class)
+                        @unless ($p->isVoided())
+                            <form method="POST" action="{{ route('payments.void', $p) }}" class="mt-1 flex gap-1">@csrf
+                                <input name="reason" required minlength="5" placeholder="سبب الإلغاء" class="w-32 rounded border border-slate-300 px-2 py-1">
+                                <button class="rounded bg-red-600 px-2 py-1 text-white">إلغاء</button>
+                            </form>
+                        @endunless
+                    @endcan
+                </td>
             </tr>
         @empty
             <tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">لا توجد دفعات.</td></tr>

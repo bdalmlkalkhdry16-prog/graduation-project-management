@@ -16,7 +16,7 @@
         @if ($fee->payments->isNotEmpty())
             <ul class="mt-3 space-y-1 text-sm text-slate-600">
                 @foreach ($fee->payments as $p)
-                    <li>{{ $p->paid_at->format('Y-m-d') }} — {{ number_format($p->amount, 2) }} — <a class="text-indigo-600 hover:underline" href="{{ route('payments.receipt', $p) }}">سند {{ $p->receipt_number }}</a></li>
+                    <li>{{ $p->paid_at->format('Y-m-d') }} — {{ number_format($p->amount, 2) }}@if ($p->isVoided()) <b class="text-red-600">(ملغاة)</b>@endif — <a class="text-indigo-600 hover:underline" href="{{ route('payments.receipt', $p) }}">سند {{ $p->receipt_number }}</a></li>
                 @endforeach
             </ul>
         @endif

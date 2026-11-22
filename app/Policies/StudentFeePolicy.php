@@ -30,6 +30,12 @@ class StudentFeePolicy
         return false;
     }
 
+    /** إلغاء دفعة: صلاحية مستقلة `payments.void` (فصل المهام: غير ممنوحة لأي دور؛ المدير عبر Gate::before). */
+    public function voidPayment(User $user): bool
+    {
+        return $user->hasPermission('payments.void');
+    }
+
     public function recordPayment(User $user): bool
     {
         return $user->hasPermission('payments.record');

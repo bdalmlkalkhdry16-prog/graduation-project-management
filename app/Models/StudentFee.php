@@ -51,7 +51,7 @@ class StudentFee extends Model
 
     public function paidCents(): int
     {
-        return self::toCents($this->payments()->sum('amount'));
+        return self::toCents($this->payments()->whereNull('voided_at')->sum('amount'));
     }
 
     public function remainingCents(): int

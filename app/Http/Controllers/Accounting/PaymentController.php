@@ -19,6 +19,15 @@ class PaymentController extends Controller
         return redirect()->route('accounting.fees.show', $studentFee)->with('success', 'تم تسجيل الدفعة. رقم السند: '.$payment->receipt_number);
     }
 
+    public function void(\Illuminate\Http\Request $request, Payment $payment, FeeService $fees): RedirectResponse
+    {
+        $this->authorize('voidPayment', StudentFee::class);
+        $data = $request->validate(['reason' => ['required', 'string', 'min:5', 'max:1000']], ['reason.required' => 'سبب الإلغاء مطلوب.', 'reason.min' => 'سبب الإلغاء قصير جدًا.']);
+        $fees->voidPayment($payment, $data['reason'], $request->user());
+
+        return redirect()->route('accounting.fees.show', $payment->student_fee_id)->with('success', 'أُلغيت الدفعة '.$payment->receipt_number.' وعاد مبلغها إلى المتبقي.');
+    }
+
     /** سند القبض: للمحاسب أو للطالب صاحب الرسم. */
     public function receipt(Payment $payment): View
     {

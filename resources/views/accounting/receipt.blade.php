@@ -7,6 +7,9 @@
         <div class="text-xl font-bold mt-1">سند قبض</div>
         <div class="text-sm text-slate-500 mt-1">رقم السند: {{ $payment->receipt_number }}</div>
     </div>
+    @if ($payment->isVoided())
+        <div class="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-center font-bold text-red-700">سند ملغى بتاريخ {{ $payment->voided_at->format('Y-m-d') }} — {{ $payment->void_reason }}</div>
+    @endif
     <dl class="grid grid-cols-3 gap-y-3 text-sm">
         <dt class="text-slate-500">الطالب</dt><dd class="col-span-2">{{ $payment->studentFee->studentProfile->user->name }} ({{ $payment->studentFee->studentProfile->number_student }})</dd>
         <dt class="text-slate-500">السنة الدراسية</dt><dd class="col-span-2">{{ $payment->studentFee->academicYear->name }}</dd>

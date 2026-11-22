@@ -76,6 +76,24 @@ class FeeService
         return $fee;
     }
 
+    /** يلغي دفعة بسبب إلزامي (لا حذف): يعود مبلغها إلى المتبقي، ويبقى السند ظاهرًا كملغى. */
+    public function voidPayment(Payment $payment, string $reason, User $by): Payment
+    {
+        return DB::transaction(function () use ($payment, $reason, $by) {
+            $payment = Payment::whereKey($payment->id)->lockForUpdate()->firstOrFail();
+            if ($payment->isVoided()) {
+                throw ValidationException::withMessages(['payment' => 'هذه الدفعة ملغاة سابقًا.']);
+            }
+            if (mb_strlen(trim($reason)) < 5) {
+                throw ValidationException::withMessages(['reason' => 'سبب الإلغاء مطلوب.']);
+            }
+            $payment->update(['voided_at' => now(), 'voided_by' => $by->id, 'void_reason' => trim($reason)]);
+            ActivityLog::log($by->id, 'payment.voided', Payment::class, $payment->id, null, ['amount' => $payment->amount, 'receipt' => $payment->receipt_number, 'reason' => trim($reason)]);
+
+            return $payment;
+        });
+    }
+
     /** يسجّل دفعة بسند قبض؛ لا تتجاوز المتبقي، وبعملة الرسم نفسها. */
     public function recordPayment(StudentFee $fee, float|string $amount, string $paidAt, ?string $notes, User $by): Payment
     {
