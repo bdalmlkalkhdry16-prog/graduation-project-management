@@ -1,6 +1,6 @@
-<dl class="grid gap-2 text-sm sm:grid-cols-2">
-    <div><dt class="inline text-slate-500">الاسم: </dt><dd class="inline font-semibold">{{ $record['student']->user->name }}</dd></div>
-    <div><dt class="inline text-slate-500">الرقم الأكاديمي: </dt><dd class="inline font-semibold">{{ $record['student']->number_student }}</dd></div>
-    <div><dt class="inline text-slate-500">التخصص: </dt><dd class="inline">{{ $record['student']->program->specialization->name_ar ?? '—' }}</dd></div>
-    <div><dt class="inline text-slate-500">المستوى: </dt><dd class="inline">{{ $record['student']->currentLevel->name ?? '—' }}</dd></div>
-</dl>
+<div class="row g-2 small">
+    <div class="col-sm-6"><span class="text-muted">الاسم: </span><strong>{{ $record['student']->user->name }}</strong></div>
+    <div class="col-sm-6"><span class="text-muted">الرقم الأكاديمي: </span><strong>{{ $record['student']->number_student }}</strong></div>
+    <div class="col-sm-6"><span class="text-muted">التخصص: </span>{{ $record['student']->program->specialization->name_ar ?? '—' }}</div>
+    <div class="col-sm-6"><span class="text-muted">المستوى: </span>{{ $record['student']->currentLevel->name ?? '—' }}</div>
+</div>

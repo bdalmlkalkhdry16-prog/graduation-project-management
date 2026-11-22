@@ -1,29 +1,28 @@
-@extends('layouts.tailwind')
+@extends('layouts.app')
 @section('title', 'مراجعة واعتماد النتائج')
 @section('content')
-<h1 class="text-2xl font-bold mb-6">مراجعة واعتماد النتائج</h1>
-<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-    <table class="min-w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600"><tr>
-            <th class="px-4 py-3 text-right">الاختبار</th><th class="px-4 py-3 text-right">المقرر / الشعبة</th>
-            <th class="px-4 py-3 text-right">المدرس</th><th class="px-4 py-3 text-right">الحالة</th><th class="px-4 py-3"></th>
-        </tr></thead>
-        <tbody class="divide-y divide-slate-100">
-        @forelse ($exams as $exam)
-            <tr>
-                <td class="px-4 py-3 font-semibold">{{ $exam->name }}</td>
-                <td class="px-4 py-3">{{ $exam->section->course->name_ar }} — {{ $exam->section->code }}</td>
-                <td class="px-4 py-3">{{ $exam->section->faculty->user->name ?? '—' }}</td>
-                <td class="px-4 py-3">@include('exams._status', ['status' => $exam->result_status])</td>
-                <td class="px-4 py-3 text-left whitespace-nowrap">
-                    <a href="{{ route('exams.grades.edit', $exam) }}" class="text-indigo-700 hover:underline ml-3">الدرجات</a>
-                    <a href="{{ route('exams.show', $exam) }}" class="text-indigo-700 hover:underline">مراجعة</a>
-                </td>
-            </tr>
-        @empty
-            <tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">لا توجد نتائج بانتظار المراجعة.</td></tr>
-        @endforelse
-        </tbody>
-    </table>
+<div class="container-fluid">
+    <h2 class="mb-4">مراجعة واعتماد النتائج</h2>
+    <div class="card"><div class="card-body p-0"><div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead><tr><th>الاختبار</th><th>المقرر / الشعبة</th><th>المدرس</th><th>الحالة</th><th></th></tr></thead>
+            <tbody>
+            @forelse ($exams as $exam)
+                <tr>
+                    <td class="fw-bold">{{ $exam->name }}</td>
+                    <td>{{ $exam->section->course->name_ar }} — {{ $exam->section->code }}</td>
+                    <td>{{ $exam->section->faculty->user->name ?? '—' }}</td>
+                    <td>@include('exams._status', ['status' => $exam->result_status])</td>
+                    <td class="text-nowrap">
+                        <a href="{{ route('exams.grades.edit', $exam) }}" class="btn btn-sm btn-outline-secondary">الدرجات</a>
+                        <a href="{{ route('exams.show', $exam) }}" class="btn btn-sm btn-outline-primary">مراجعة</a>
+                    </td>
+                </tr>
+            @empty
+                <tr><td colspan="5" class="text-center text-muted py-4">لا توجد نتائج بانتظار المراجعة.</td></tr>
+            @endforelse
+            </tbody>
+        </table>
+    </div></div></div>
 </div>
 @endsection

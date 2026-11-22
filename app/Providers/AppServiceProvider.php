@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // ترقيم الصفحات بتنسيق Bootstrap ليتوافق مع واجهة النظام (layouts.app)
+        Paginator::useBootstrapFive();
+
         // Phase 1 — Roles & Permissions (نظام جديد، إضافي فقط).
         // من يحمل دور "admin" الجديد (عبر user_roles) يحصل على تجاوز كامل،
         // بما يماثل تمامًا سلوك isAdmin() الحالي، دون أي تعارض معه.

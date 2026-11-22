@@ -234,6 +234,14 @@
             padding: 0.2rem 0.45rem;
         }
 
+        /* ========== الطباعة: بلا قائمة جانبية أو شريط علوي (كشف الدرجات وسندات القبض) ========== */
+        @media print {
+            .sidebar, .navbar-top, .sidebar-toggle { display: none !important; }
+            .main-content { padding: 0 !important; margin: 0 !important; }
+            body { background: #fff !important; }
+            .card { border: 0 !important; box-shadow: none !important; }
+        }
+
         /* ========== التجاوب مع الجوال ========== */
         @media (max-width: 768px) {
             .sidebar {

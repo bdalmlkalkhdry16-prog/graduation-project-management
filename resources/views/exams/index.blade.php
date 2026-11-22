@@ -1,58 +1,56 @@
-@extends('layouts.tailwind')
+@extends('layouts.app')
 @section('title', 'الاختبارات')
 @section('content')
-<div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-    <h1 class="text-2xl font-bold">الاختبارات</h1>
-    @can('create', \App\Models\Exam::class)
-        <a href="{{ route('exams.create') }}" class="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">+ اختبار جديد</a>
-    @endcan
-</div>
+<div class="container-fluid">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <h2 class="mb-0">الاختبارات</h2>
+        @can('create', \App\Models\Exam::class)
+            <a href="{{ route('exams.create') }}" class="btn btn-primary"><i class="fas fa-plus me-1"></i> اختبار جديد</a>
+        @endcan
+    </div>
 
-<form method="GET" class="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-    <select name="term" class="rounded-lg border border-slate-300 bg-white px-3 py-2">
-        <option value="">كل الفصول</option>
-        @foreach ($terms as $term)
-            <option value="{{ $term->id }}" @selected(request('term') == $term->id)>{{ $term->academicYear->name ?? '' }} — {{ \App\Services\AcademicRecordService::semesterLabel($term->semester) }}</option>
-        @endforeach
-    </select>
-    <select name="course" class="rounded-lg border border-slate-300 bg-white px-3 py-2">
-        <option value="">كل المقررات</option>
-        @foreach ($courses as $course)
-            <option value="{{ $course->id }}" @selected(request('course') == $course->id)>{{ $course->code }} — {{ $course->name_ar }}</option>
-        @endforeach
-    </select>
-    <select name="section" class="rounded-lg border border-slate-300 bg-white px-3 py-2">
-        <option value="">كل الشعب</option>
-        @foreach ($sections as $section)
-            <option value="{{ $section->id }}" @selected(request('section') == $section->id)>{{ $section->course->name_ar }} — {{ $section->code }}</option>
-        @endforeach
-    </select>
-    <button class="rounded-lg border border-slate-300 bg-white px-4 py-2 hover:bg-slate-100">تصفية</button>
-</form>
+    <form method="GET" class="row g-2 mb-4">
+        <div class="col-md-3"><select name="term" class="form-select">
+            <option value="">كل الفصول</option>
+            @foreach ($terms as $term)
+                <option value="{{ $term->id }}" @selected(request('term') == $term->id)>{{ $term->academicYear->name ?? '' }} — {{ \App\Services\AcademicRecordService::semesterLabel($term->semester) }}</option>
+            @endforeach
+        </select></div>
+        <div class="col-md-3"><select name="course" class="form-select">
+            <option value="">كل المقررات</option>
+            @foreach ($courses as $course)
+                <option value="{{ $course->id }}" @selected(request('course') == $course->id)>{{ $course->code }} — {{ $course->name_ar }}</option>
+            @endforeach
+        </select></div>
+        <div class="col-md-3"><select name="section" class="form-select">
+            <option value="">كل الشعب</option>
+            @foreach ($sections as $section)
+                <option value="{{ $section->id }}" @selected(request('section') == $section->id)>{{ $section->course->name_ar }} — {{ $section->code }}</option>
+            @endforeach
+        </select></div>
+        <div class="col-auto"><button class="btn btn-outline-secondary">تصفية</button></div>
+    </form>
 
-<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-    <table class="min-w-full text-sm">
-        <thead class="bg-slate-50 text-slate-600"><tr>
-            <th class="px-4 py-3 text-right">الاختبار</th><th class="px-4 py-3 text-right">المقرر / الشعبة</th>
-            <th class="px-4 py-3 text-right">النوع</th><th class="px-4 py-3 text-right">التاريخ</th>
-            <th class="px-4 py-3 text-right">الدرجة</th><th class="px-4 py-3 text-right">الحالة</th><th class="px-4 py-3"></th>
-        </tr></thead>
-        <tbody class="divide-y divide-slate-100">
-        @forelse ($exams as $exam)
-            <tr>
-                <td class="px-4 py-3 font-semibold">{{ $exam->name }}</td>
-                <td class="px-4 py-3">{{ $exam->section->course->name_ar }} — {{ $exam->section->code }}</td>
-                <td class="px-4 py-3">{{ \App\Models\Exam::typeLabel($exam->type) }}</td>
-                <td class="px-4 py-3">{{ $exam->exam_date->format('Y-m-d') }}</td>
-                <td class="px-4 py-3">{{ $exam->max_score + 0 }} (مخصصة: {{ $exam->weight + 0 }})</td>
-                <td class="px-4 py-3">@include('exams._status', ['status' => $exam->result_status])</td>
-                <td class="px-4 py-3 text-left"><a href="{{ route('exams.show', $exam) }}" class="text-indigo-700 hover:underline">فتح</a></td>
-            </tr>
-        @empty
-            <tr><td colspan="7" class="px-4 py-6 text-center text-slate-500">لا توجد اختبارات.</td></tr>
-        @endforelse
-        </tbody>
-    </table>
+    <div class="card"><div class="card-body p-0"><div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead><tr><th>الاختبار</th><th>المقرر / الشعبة</th><th>النوع</th><th>التاريخ</th><th>الدرجة</th><th>الحالة</th><th></th></tr></thead>
+            <tbody>
+            @forelse ($exams as $exam)
+                <tr>
+                    <td class="fw-bold">{{ $exam->name }}</td>
+                    <td>{{ $exam->section->course->name_ar }} — {{ $exam->section->code }}</td>
+                    <td>{{ \App\Models\Exam::typeLabel($exam->type) }}</td>
+                    <td>{{ $exam->exam_date->format('Y-m-d') }}</td>
+                    <td>{{ $exam->max_score + 0 }} (مخصصة: {{ $exam->weight + 0 }})</td>
+                    <td>@include('exams._status', ['status' => $exam->result_status])</td>
+                    <td><a href="{{ route('exams.show', $exam) }}" class="btn btn-sm btn-outline-primary">فتح</a></td>
+                </tr>
+            @empty
+                <tr><td colspan="7" class="text-center text-muted py-4">لا توجد اختبارات.</td></tr>
+            @endforelse
+            </tbody>
+        </table>
+    </div></div></div>
+    <div class="mt-3">{{ $exams->links() }}</div>
 </div>
-<div class="mt-4">{{ $exams->links() }}</div>
 @endsection

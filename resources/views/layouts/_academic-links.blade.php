@@ -1,12 +1,15 @@
 {{--
     روابط الوحدات الأكاديمية (Phase 5–7 والخدمات الإلكترونية والمالية) حسب صلاحيات المستخدم.
     مصدر واحد تستخدمه القائمة الجانبية القديمة (variant=sidebar) ولوحات التحكم (variant=cards)،
-    فلا تتباعد القوائم. الشاشات الجديدة بتنسيق Tailwind وتُفتح بصفحة كاملة ولها قائمة علوية خاصة تعود للنظام القديم.
+    فلا تتباعد القوائم. الشاشات الجديدة صارت بنفس تنسيق النظام القديم (layouts.app / Bootstrap RTL) وتظهر داخل قائمته الجانبية.
 --}}
 @php
     $u = auth()->user();
     $isAdmin = $u->isAdmin() || $u->hasRole('admin');
+    // صفحات الموظفين المحمية بـ permission: لا يتجاوزها المدير عمدًا (فصل المهام: التسجيل وشؤون الطلاب والقاعات
+    // والجداول لأدوارها)، فلا نعرض له رابطًا يُرفض عند فتحه. أما ما تحميه السياسات فيتجاوزه المدير (Gate::before).
     $has = fn (string $p) => $isAdmin || $u->hasPermission($p);
+    $strict = fn (string $p) => $u->hasPermission($p);
     $links = array_values(array_filter([
         // الطالب
         $has('enrollments.viewOwn') ? ['student.enrollments.index', 'fa-clipboard-list', 'تسجيلاتي', 'student.enrollments.*'] : null,
@@ -23,13 +26,13 @@
         $u->hasPermission('attendance.manageOwn') ? ['faculty.attendance.index', 'fa-user-check', 'حضور شعبي', 'faculty.attendance.*'] : null,
         \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\Exam::class) ? ['exams.index', 'fa-pen-alt', 'الاختبارات والدرجات', 'exams.*'] : null,
         // الموظفون
-        $has('student-profiles.manage') ? ['staff.student-profiles.index', 'fa-id-card', 'ملفات الطلاب', 'staff.student-profiles.*'] : null,
-        $has('enrollments.manage') ? ['staff.enrollments.index', 'fa-user-plus', 'التسجيل في الشعب', 'staff.enrollments.index'] : null,
-        $has('enrollments.manage') ? ['staff.enrollments.students', 'fa-address-book', 'سجل الطلاب', 'staff.enrollments.students'] : null,
-        $has('rooms.manage') ? ['staff.rooms.index', 'fa-door-open', 'القاعات', 'staff.rooms.*'] : null,
-        $has('schedules.manage') ? ['staff.schedules.index', 'fa-calendar-alt', 'الجداول الدراسية', 'staff.schedules.*'] : null,
-        $has('attendance.viewAll') ? ['staff.attendance.index', 'fa-clipboard-check', 'الحضور', 'staff.attendance.*'] : null,
-        $has('service-requests.manageAll') ? ['staff.service-requests.index', 'fa-concierge-bell', 'طلبات الخدمات', 'staff.service-requests.*'] : null,
+        $strict('student-profiles.manage') ? ['staff.student-profiles.index', 'fa-id-card', 'ملفات الطلاب', 'staff.student-profiles.*'] : null,
+        $strict('enrollments.manage') ? ['staff.enrollments.index', 'fa-user-plus', 'التسجيل في الشعب', 'staff.enrollments.index'] : null,
+        $strict('enrollments.manage') ? ['staff.enrollments.students', 'fa-address-book', 'سجل الطلاب', 'staff.enrollments.students'] : null,
+        $strict('rooms.manage') ? ['staff.rooms.index', 'fa-door-open', 'القاعات', 'staff.rooms.*'] : null,
+        $strict('schedules.manage') ? ['staff.schedules.index', 'fa-calendar-alt', 'الجداول الدراسية', 'staff.schedules.*'] : null,
+        $strict('attendance.viewAll') ? ['staff.attendance.index', 'fa-clipboard-check', 'الحضور', 'staff.attendance.*'] : null,
+        $strict('service-requests.manageAll') ? ['staff.service-requests.index', 'fa-concierge-bell', 'طلبات الخدمات', 'staff.service-requests.*'] : null,
         $has('results.review') ? ['results.review', 'fa-tasks', 'مراجعة النتائج', 'results.review'] : null,
         $has('results.publish') ? ['results.publish', 'fa-bullhorn', 'نشر النتائج', 'results.publish'] : null,
         \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\StudentFee::class) ? ['accounting.fees.index', 'fa-cash-register', 'رسوم الطلاب والمدفوعات', 'accounting.*'] : null,

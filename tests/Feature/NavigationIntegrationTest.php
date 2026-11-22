@@ -70,7 +70,7 @@ class NavigationIntegrationTest extends TestCase
     {
         $r = $this->dashboard($this->userWithRole('admin', 'admin'));
 
-        foreach (['exams.index', 'results.review', 'results.publish', 'accounting.fees.index', 'fee-schedules.index', 'academic-settings.edit', 'staff.service-requests.index'] as $route) {
+        foreach (['exams.index', 'results.review', 'results.publish', 'accounting.fees.index', 'fee-schedules.index', 'academic-settings.edit'] as $route) {
             $r->assertSee(route($route), false);
         }
     }
@@ -86,16 +86,79 @@ class NavigationIntegrationTest extends TestCase
     }
 
     /** @test */
-    public function the_new_tailwind_screens_link_back_to_the_old_system()
+    public function the_new_screens_render_inside_the_old_layout_with_its_sidebar_and_bootstrap_styling()
+    {
+        [$student] = $this->makeStudent();
+        $admin = $this->userWithRole('admin', 'admin');
+        $section = $this->section;
+        $exam = $this->makeExam($section);
+        $pages = [
+            [$student, route('student.results.index')],
+            [$student, route('student.academic-record')],
+            [$student, route('student.transcript')],
+            [$student, route('student.fees.index')],
+            [$student, route('student.enrollments.index')],
+            [$this->facultyUser, route('faculty.enrollments.index')],
+            [$this->facultyUser, route('faculty.enrollments.show', $section)],
+            [$this->facultyUser, route('exams.index')],
+            [$this->facultyUser, route('exams.show', $exam)],
+            [$this->facultyUser, route('exams.grades.edit', $exam)],
+            [$this->facultyUser, route('exams.create')],
+            [$admin, route('results.review')],
+            [$admin, route('results.publish')],
+            [$admin, route('academic-settings.edit')],
+            [$admin, route('fee-schedules.index')],
+            [$admin, route('fee-schedules.create')],
+            [$admin, route('accounting.fees.index')],
+            [$this->userWithRole('student_affairs'), route('staff.enrollments.index')],
+            [$this->userWithRole('student_affairs'), route('staff.enrollments.students')],
+            [$this->userWithRole('student_affairs'), route('staff.enrollments.show', $section)],
+            [$admin, route('exams.edit', $exam)],
+        ];
+        foreach ($pages as [$user, $url]) {
+            $response = $this->actingAs($user)->get($url);
+            $this->assertSame(200, $response->getStatusCode(), "$url => ".$response->getStatusCode());
+            $html = $response->getContent();
+            $this->assertStringContainsString('id="sidebar"', $html, "$url خارج تخطيط النظام");
+            $this->assertStringContainsString('bootstrap.rtl.min.css', $html, $url);
+            $this->assertStringNotContainsString('bg-slate-', $html, "$url ما زال بتنسيق Tailwind");
+            $this->assertStringNotContainsString('text-indigo-', $html, "$url ما زال بتنسيق Tailwind");
+        }
+        $this->assertFileDoesNotExist(resource_path('views/layouts/tailwind.blade.php'));
+    }
+
+    /** @test */
+    public function the_old_sidebar_links_to_the_new_modules_for_a_student()
     {
         [$user] = $this->makeStudent();
         $this->actingAs($user)->get(route('student.results.index'))->assertOk()
-            ->assertSee(route('projects.index'), false)->assertSee(route('notifications.index'), false)->assertSee(route('profile.show'), false);
+            ->assertSee(route('projects.index'), false)->assertSee(route('student.fees.index'), false)->assertSee(route('student.transcript'), false);
+    }
+
+    /** @test */
+    public function pagination_uses_bootstrap_markup()
+    {
+        \App\Models\User::factory()->count(3)->create();
+        $this->assertStringContainsString('class="pagination"', (string) \App\Models\User::paginate(1)->links());
     }
 
     /** @test */
     public function the_old_project_screens_are_untouched_for_supervisors_and_admins()
     {
         $this->actingAs($this->userWithRole('admin', 'admin'))->get(route('projects.index'))->assertOk()->assertSee(route('admin.users.index'), false);
+    }
+
+    /** @test */
+    public function the_admin_is_not_shown_links_to_screens_that_are_deliberately_closed_to_him()
+    {
+        $admin = $this->userWithRole('admin', 'admin');
+        $html = $this->actingAs($admin)->get(route('dashboard'))->assertOk()->getContent();
+        foreach (['staff.enrollments.index', 'staff.rooms.index', 'staff.schedules.index', 'staff.service-requests.index'] as $name) {
+            $this->assertStringNotContainsString('href="'.route($name).'"', $html, $name);
+            $this->actingAs($admin)->get(route($name))->assertForbidden();
+        }
+        // وما تحميه السياسات يراه ويفتحه
+        $this->assertStringContainsString(route('results.review'), $html);
+        $this->actingAs($admin)->get(route('results.review'))->assertOk();
     }
 }
