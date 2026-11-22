@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AcademicYear;
 use App\Models\ActivityLog;
+use App\Models\FeeDiscount;
 use App\Models\Department;
 use App\Models\FeeSchedule;
 use App\Models\Payment;
@@ -74,6 +75,53 @@ class FeeService
         ActivityLog::log($by->id, $release ? 'student_fee.results_released' : 'student_fee.results_release_revoked', StudentFee::class, $fee->id, null, ['reason' => $reason]);
 
         return $fee;
+    }
+
+    /** يضيف خصمًا/إعفاءً (مبلغ أو نسبة) بسبب؛ لا يتجاوز المتبقي، والنسبة تُثبَّت مبلغًا من أصل المستحق. */
+    public function addDiscount(StudentFee $fee, string $type, float|string $value, string $reason, User $by): FeeDiscount
+    {
+        return DB::transaction(function () use ($fee, $type, $value, $reason, $by) {
+            $fee = StudentFee::whereKey($fee->id)->lockForUpdate()->firstOrFail();
+            $valueCents = StudentFee::toCents($value);
+            $gross = StudentFee::toCents($fee->amount);
+
+            if (! in_array($type, ['amount', 'percent'], true)) {
+                throw ValidationException::withMessages(['type' => 'نوع الخصم غير صالح.']);
+            }
+            if ($valueCents <= 0 || ($type === 'percent' && $valueCents > 10000)) {
+                throw ValidationException::withMessages(['value' => $type === 'percent' ? 'النسبة بين 0 و100.' : 'قيمة الخصم يجب أن تكون أكبر من صفر.']);
+            }
+            if (mb_strlen(trim($reason)) < 5) {
+                throw ValidationException::withMessages(['reason' => 'سبب الخصم مطلوب.']);
+            }
+
+            $cents = $type === 'percent' ? intdiv($gross * $valueCents + 5000, 10000) : $valueCents;
+            if ($cents > $fee->remainingCents()) {
+                throw ValidationException::withMessages(['value' => 'الخصم يتجاوز المتبقي ('.number_format(max(0, $fee->remainingCents()) / 100, 2).') ولا يمكن أن يجعل الرسم أقل من المدفوع.']);
+            }
+
+            $discount = FeeDiscount::create(['student_fee_id' => $fee->id, 'type' => $type, 'value' => $valueCents / 100, 'amount' => $cents / 100, 'reason' => trim($reason), 'created_by' => $by->id]);
+            ActivityLog::log($by->id, 'fee_discount.added', FeeDiscount::class, $discount->id, null, ['student_fee_id' => $fee->id, 'type' => $type, 'value' => $discount->value, 'amount' => $discount->amount, 'reason' => trim($reason)]);
+
+            return $discount;
+        });
+    }
+
+    public function revokeDiscount(FeeDiscount $discount, string $reason, User $by): FeeDiscount
+    {
+        return DB::transaction(function () use ($discount, $reason, $by) {
+            $discount = FeeDiscount::whereKey($discount->id)->lockForUpdate()->firstOrFail();
+            if ($discount->isRevoked()) {
+                throw ValidationException::withMessages(['discount' => 'هذا الخصم ملغى سابقًا.']);
+            }
+            if (mb_strlen(trim($reason)) < 5) {
+                throw ValidationException::withMessages(['reason' => 'سبب الإلغاء مطلوب.']);
+            }
+            $discount->update(['revoked_at' => now(), 'revoked_by' => $by->id, 'revoke_reason' => trim($reason)]);
+            ActivityLog::log($by->id, 'fee_discount.revoked', FeeDiscount::class, $discount->id, null, ['amount' => $discount->amount, 'reason' => trim($reason)]);
+
+            return $discount;
+        });
     }
 
     /** يلغي دفعة بسبب إلزامي (لا حذف): يعود مبلغها إلى المتبقي، ويبقى السند ظاهرًا كملغى. */

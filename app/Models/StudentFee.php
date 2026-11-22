@@ -38,6 +38,27 @@ class StudentFee extends Model
         return $this->results_released_at !== null;
     }
 
+    public function discounts(): HasMany
+    {
+        return $this->hasMany(FeeDiscount::class);
+    }
+
+    public function discountCents(): int
+    {
+        return self::toCents($this->discounts()->whereNull('revoked_at')->sum('amount'));
+    }
+
+    /** المستحق الصافي بعد الخصومات. */
+    public function netCents(): int
+    {
+        return self::toCents($this->amount) - $this->discountCents();
+    }
+
+    public function discount(): float
+    {
+        return $this->discountCents() / 100;
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class);
@@ -56,7 +77,7 @@ class StudentFee extends Model
 
     public function remainingCents(): int
     {
-        return self::toCents($this->amount) - $this->paidCents();
+        return $this->netCents() - $this->paidCents();
     }
 
     public function paid(): float

@@ -12,7 +12,7 @@ class FeeController extends Controller
         $profile = auth()->user()->studentProfile;
 
         return view('student.fees.index', [
-            'fees' => $profile ? $profile->studentFees()->with(['academicYear', 'payments'])->latest()->get() : collect(),
+            'fees' => $profile ? $profile->studentFees()->with(['academicYear', 'payments', 'discounts'])->latest()->get() : collect(),
         ]);
     }
 }

@@ -36,6 +36,12 @@ class StudentFeePolicy
         return $user->hasPermission('payments.void');
     }
 
+    /** إضافة/إلغاء خصم أو إعفاء: صلاحية `fees.discount` غير ممنوحة لأي دور (المدير فقط عبر Gate::before). */
+    public function discount(User $user): bool
+    {
+        return $user->hasPermission('fees.discount');
+    }
+
     public function recordPayment(User $user): bool
     {
         return $user->hasPermission('payments.record');

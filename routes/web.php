@@ -1159,6 +1159,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('accounting/fees', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'index'])->name('accounting.fees.index');
     Route::post('accounting/fees/generate', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'generate'])->name('accounting.fees.generate');
+    Route::post('accounting/fees/{studentFee}/discounts', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'addDiscount'])->name('accounting.discounts.store');
+    Route::post('accounting/discounts/{discount}/revoke', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'revokeDiscount'])->name('accounting.discounts.revoke');
     Route::post('accounting/fees/{studentFee}/release-results', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'releaseResults'])->name('accounting.fees.release-results');
     Route::get('accounting/fees/{studentFee}', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'show'])->name('accounting.fees.show');
     Route::post('accounting/fees/{studentFee}/payments', [\App\Http\Controllers\Accounting\PaymentController::class, 'store'])->name('accounting.payments.store');
