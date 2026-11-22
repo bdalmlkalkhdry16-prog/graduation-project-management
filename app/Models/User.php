@@ -198,6 +198,12 @@ class User extends Authenticatable
      */
     public function hasPermission(string $permissionSlug, ?int $departmentId = null): bool
     {
+        // مدير النظام (الدور الجديد admin أو المدير القديم) يملك كل الصلاحيات الإدارية.
+        // صلاحيات «الخاصة» (…Own…) تخص سجلات الطالب/المدرس نفسه وليس للمدير سجل ليراه، فتبقى مشروطة بالدور الفعلي.
+        if (! str_contains($permissionSlug, 'Own') && ($this->isAdmin() || $this->hasRole('admin'))) {
+            return true;
+        }
+
         $query = $this->userRoles()
             ->whereHas('role.permissions', fn ($q) => $q->where('slug', $permissionSlug));
 

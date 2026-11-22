@@ -164,22 +164,18 @@ class EnrollmentManagementTest extends TestCase
     }
 
     /** @test */
-    public function the_system_admin_cannot_manage_enrollments()
+    public function the_system_admin_has_all_permissions_including_enrollment_management()
     {
         $admin = $this->userWithRole('admin', 'admin');
         [, $student] = $this->makeStudent();
-        $enrollment = Enrollment::create(['student_profile_id' => $student->id, 'section_id' => $this->section->id]);
         [, $other] = $this->makeStudent();
 
-        $this->actingAs($admin)->get(route('staff.enrollments.index'))->assertForbidden();
-        $this->actingAs($admin)->get(route('staff.enrollments.show', $this->section))->assertForbidden();
-        $this->actingAs($admin)->get(route('staff.enrollments.students'))->assertForbidden();
-        $this->actingAs($admin)->get(route('staff.enrollments.history', $student))->assertForbidden();
-        $this->actingAs($admin)->post($this->enrollUrl(), ['student_profile_id' => $other->id])->assertForbidden();
-        $this->actingAs($admin)->patch(route('staff.enrollments.status', $enrollment), ['status' => 'dropped'])->assertForbidden();
-
+        $this->actingAs($admin)->get(route('staff.enrollments.index'))->assertOk();
+        $this->actingAs($admin)->get(route('staff.enrollments.show', $this->section))->assertOk();
+        $this->actingAs($admin)->get(route('staff.enrollments.students'))->assertOk();
+        $this->actingAs($admin)->get(route('staff.enrollments.history', $student))->assertOk();
+        $this->actingAs($admin)->post($this->enrollUrl(), ['student_profile_id' => $other->id])->assertSessionHasNoErrors();
         $this->assertSame(1, Enrollment::count());
-        $this->assertSame('active', $enrollment->fresh()->status);
     }
 
     /** @test */

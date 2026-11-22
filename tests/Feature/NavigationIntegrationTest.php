@@ -149,16 +149,37 @@ class NavigationIntegrationTest extends TestCase
     }
 
     /** @test */
-    public function the_admin_is_not_shown_links_to_screens_that_are_deliberately_closed_to_him()
+    public function the_admin_has_every_permission_so_all_management_screens_open_and_are_linked()
+    {
+        foreach ([$this->userWithRole('admin', 'admin'), \App\Models\User::factory()->admin()->create()] as $admin) {
+            $html = $this->actingAs($admin)->get(route('dashboard'))->assertOk()->getContent();
+            foreach (['staff.enrollments.index', 'staff.rooms.index', 'staff.schedules.index', 'staff.attendance.index', 'staff.student-profiles.index', 'staff.service-requests.index', 'results.review', 'accounting.fees.index'] as $name) {
+                $this->assertStringContainsString(route($name), $html, "$name غير ظاهر للمدير");
+                $this->assertSame(200, $this->actingAs($admin)->get(route($name))->getStatusCode(), "$name للمدير");
+            }
+        }
+    }
+
+    /** @test */
+    public function the_admin_never_hits_a_server_error_on_any_permission_protected_page()
     {
         $admin = $this->userWithRole('admin', 'admin');
-        $html = $this->actingAs($admin)->get(route('dashboard'))->assertOk()->getContent();
-        foreach (['staff.enrollments.index', 'staff.rooms.index', 'staff.schedules.index', 'staff.service-requests.index'] as $name) {
-            $this->assertStringNotContainsString('href="'.route($name).'"', $html, $name);
-            $this->actingAs($admin)->get(route($name))->assertForbidden();
+        $skip = ['logout'];
+        foreach (\Illuminate\Support\Facades\Route::getRoutes() as $route) {
+            if (! in_array('GET', $route->methods()) || ! in_array('auth', $route->gatherMiddleware()) || str_contains($route->uri(), '{')) {
+                continue;
+            }
+            $guarded = collect($route->gatherMiddleware())->contains(fn ($m) => is_string($m) && str_starts_with($m, 'permission:'));
+            if (! $guarded || in_array($route->getName(), $skip)) {
+                continue;
+            }
+            $status = $this->actingAs($admin)->get('/'.$route->uri())->getStatusCode();
+            $this->assertLessThan(500, $status, $route->uri().' => '.$status);
+            // صفحات «الخاصة» (my/*، شعبي، حضوري...) للطالب/المدرس نفسه؛ أما الإدارية فمفتوحة للمدير
+            $own = collect($route->gatherMiddleware())->contains(fn ($m) => is_string($m) && str_starts_with($m, 'permission:') && str_contains($m, 'Own'));
+            if (! $own) {
+                $this->assertNotSame(403, $status, $route->uri().' مغلق على المدير');
+            }
         }
-        // وما تحميه السياسات يراه ويفتحه
-        $this->assertStringContainsString(route('results.review'), $html);
-        $this->actingAs($admin)->get(route('results.review'))->assertOk();
     }
 }
