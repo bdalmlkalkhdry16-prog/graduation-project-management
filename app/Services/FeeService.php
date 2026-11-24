@@ -38,6 +38,7 @@ class FeeService
         ]);
 
         ActivityLog::log($by->id, 'student_fee.generated', StudentFee::class, $fee->id, null, ['amount' => $fee->amount, 'currency' => $fee->currency]);
+        $this->tell($fee, 'رسوم دراسية جديدة', 'تم تسجيل رسوم السنة الدراسية '.$year->name.'.', 'info');
 
         return $fee;
     }
@@ -72,6 +73,7 @@ class FeeService
         $fee->update($release
             ? ['results_released_at' => now(), 'results_released_by' => $by->id, 'results_release_reason' => $reason]
             : ['results_released_at' => null, 'results_released_by' => null, 'results_release_reason' => null]);
+        $this->tell($fee, $release ? 'رُفع حجب نتائجك' : 'حُجبت نتائجك لعدم السداد', $release ? 'رُفع الحجب عن نتائج السنة الدراسية '.$fee->academicYear?->name.'.' : 'حُجبت نتائج السنة الدراسية '.$fee->academicYear?->name.' حتى تسوية الرسوم.', $release ? 'success' : 'warning');
         ActivityLog::log($by->id, $release ? 'student_fee.results_released' : 'student_fee.results_release_revoked', StudentFee::class, $fee->id, null, ['reason' => $reason]);
 
         return $fee;
@@ -101,6 +103,7 @@ class FeeService
             }
 
             $discount = FeeDiscount::create(['student_fee_id' => $fee->id, 'type' => $type, 'value' => $valueCents / 100, 'amount' => $cents / 100, 'reason' => trim($reason), 'created_by' => $by->id]);
+            $this->tell($fee, 'خصم على رسومك', 'أُضيف خصم على رسوم السنة الدراسية '.$fee->academicYear?->name.'.', 'success');
             ActivityLog::log($by->id, 'fee_discount.added', FeeDiscount::class, $discount->id, null, ['student_fee_id' => $fee->id, 'type' => $type, 'value' => $discount->value, 'amount' => $discount->amount, 'reason' => trim($reason)]);
 
             return $discount;
@@ -118,6 +121,7 @@ class FeeService
                 throw ValidationException::withMessages(['reason' => 'سبب الإلغاء مطلوب.']);
             }
             $discount->update(['revoked_at' => now(), 'revoked_by' => $by->id, 'revoke_reason' => trim($reason)]);
+            $this->tell($discount->studentFee, 'أُلغي خصم', 'أُلغي أحد خصومات رسومك وعاد مبلغه إلى المستحق.', 'warning');
             ActivityLog::log($by->id, 'fee_discount.revoked', FeeDiscount::class, $discount->id, null, ['amount' => $discount->amount, 'reason' => trim($reason)]);
 
             return $discount;
@@ -136,6 +140,7 @@ class FeeService
                 throw ValidationException::withMessages(['reason' => 'سبب الإلغاء مطلوب.']);
             }
             $payment->update(['voided_at' => now(), 'voided_by' => $by->id, 'void_reason' => trim($reason)]);
+            $this->tell($payment->studentFee, 'أُلغيت دفعة', 'أُلغيت الدفعة '.$payment->receipt_number.' وعاد مبلغها إلى المستحق.', 'warning');
             ActivityLog::log($by->id, 'payment.voided', Payment::class, $payment->id, null, ['amount' => $payment->amount, 'receipt' => $payment->receipt_number, 'reason' => trim($reason)]);
 
             return $payment;
@@ -160,9 +165,17 @@ class FeeService
             $payment = Payment::create(['student_fee_id' => $fee->id, 'amount' => $cents / 100, 'paid_at' => $paidAt, 'notes' => $notes, 'recorded_by' => $by->id]);
             $payment->update(['receipt_number' => 'RC-'.str_pad((string) $payment->id, 6, '0', STR_PAD_LEFT)]);
 
+            $this->tell($fee, 'تم استلام دفعة', 'سُجّلت دفعة بسند '.$payment->receipt_number.'.', 'success');
             ActivityLog::log($by->id, 'payment.recorded', Payment::class, $payment->id, null, ['amount' => $payment->amount, 'receipt' => $payment->receipt_number, 'student_fee_id' => $fee->id]);
 
             return $payment;
         });
+    }
+
+    /** إشعار الطالب صاحب الرسم. */
+    private function tell(?StudentFee $fee, string $title, string $message, string $type): void
+    {
+        $fee?->loadMissing('studentProfile', 'academicYear');
+        app(AcademicNotifier::class)->toUser($fee?->studentProfile?->user_id, $title, $message, $type, route('student.fees.index'));
     }
 }

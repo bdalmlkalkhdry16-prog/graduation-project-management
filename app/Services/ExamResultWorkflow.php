@@ -152,9 +152,36 @@ class ExamResultWorkflow
             $exam->update($attributes);
 
             ActivityLog::log($user->id, 'exam_results.'.$action, Exam::class, $exam->id, ['status' => $old], ['status' => $to] + $context);
+            $this->notify($exam, $action, $user, $context);
 
             return $exam;
         });
+    }
+
+    /** إشعارات دورة النتائج عبر نظام الإشعارات الموحَّد. */
+    private function notify(Exam $exam, string $action, User $by, array $context): void
+    {
+        $n = app(AcademicNotifier::class);
+        $exam->loadMissing('section.course', 'section.faculty');
+        $label = $exam->name.' — '.($exam->section->course->name_ar ?? '').' ('.$exam->section->code.')';
+        $facultyUserId = $exam->section->faculty?->user_id;
+
+        match ($action) {
+            'submit' => $n->toPermissionHolders('results.review', 'نتائج بانتظار المراجعة', $label, 'info', route('exams.show', $exam), $by->id),
+            'approve' => [
+                $n->toPermissionHolders('results.publish', 'نتائج معتمدة بانتظار النشر', $label, 'info', route('exams.show', $exam), $by->id),
+                $n->toUser($facultyUserId === $by->id ? null : $facultyUserId, 'اعتُمدت نتائجك', $label, 'success', route('exams.show', $exam)),
+            ],
+            'reject' => $n->toUser($facultyUserId === $by->id ? null : $facultyUserId, 'رُفضت النتائج وتحتاج مراجعة', $label.' — السبب: '.($context['reason'] ?? ''), 'warning', route('exams.show', $exam)),
+            'publish' => $n->toMany(
+                $exam->rosterEntries()->with('enrollment.studentProfile')->get()->map(fn ($e) => $e->enrollment?->studentProfile?->user_id),
+                'نُشرت نتائج جديدة',
+                'نُشرت نتائج '.($exam->section->course->name_ar ?? '').' ('.$exam->name.').',
+                'success',
+                route('student.results.index')
+            ),
+            default => null,
+        };
     }
 
     private function fail(string $message): never

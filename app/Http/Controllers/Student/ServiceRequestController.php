@@ -34,6 +34,12 @@ class ServiceRequestController extends Controller
     {
         $serviceRequest = auth()->user()->studentProfile->serviceRequests()->create($request->validated());
 
+        app(\App\Services\AcademicNotifier::class)->toPermissionHolders(
+            'service-requests.manageAll', 'طلب خدمة جديد',
+            \App\Models\StudentServiceRequest::typeLabel($serviceRequest->type).' — '.auth()->user()->name,
+            'info', route('staff.service-requests.show', $serviceRequest)
+        );
+
         return redirect()
             ->route('student.service-requests.show', $serviceRequest)
             ->with('success', 'تم إرسال طلبك بنجاح.');

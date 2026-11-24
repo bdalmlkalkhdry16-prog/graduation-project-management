@@ -98,11 +98,16 @@ class EnrollmentService
                 $this->fail('student_profile_id', $reason);
             }
 
-            return Enrollment::create([
+            $enrollment = Enrollment::create([
                 'student_profile_id' => $student->id,
                 'section_id' => $section->id,
                 'status' => Enrollment::STATUS_ACTIVE,
             ]);
+
+            $section->loadMissing('course');
+            app(AcademicNotifier::class)->toUser($student->user_id, 'تم تسجيلك في مقرر', ($section->course->name_ar ?? '').' — شعبة '.$section->code, 'success', route('student.enrollments.index'));
+
+            return $enrollment;
         });
     }
 
@@ -115,7 +120,14 @@ class EnrollmentService
             $section = Section::whereKey($enrollment->section_id)->lockForUpdate()->firstOrFail();
             $enrollment = Enrollment::whereKey($enrollment->id)->lockForUpdate()->firstOrFail();
 
+            $old = $enrollment->status;
             $enrollment->update(['status' => $status]);
+
+            if ($old !== $status) {
+                $section->loadMissing('course');
+                $label = ['active' => 'نشط', 'dropped' => 'منسحب', 'completed' => 'مكتمل'][$status] ?? $status;
+                app(AcademicNotifier::class)->toUser($enrollment->studentProfile?->user_id, 'تغيّرت حالة تسجيلك', ($section->course->name_ar ?? '').' — شعبة '.$section->code.': '.$label, 'info', route('student.enrollments.index'));
+            }
 
             return $enrollment;
         });

@@ -37,6 +37,13 @@ class ServiceRequestController extends Controller
             'handled_by' => auth()->id(),
         ]);
 
+        $serviceRequest->loadMissing('studentProfile');
+        app(\App\Services\AcademicNotifier::class)->toUser(
+            $serviceRequest->studentProfile?->user_id, 'تحديث على طلبك',
+            \App\Models\StudentServiceRequest::typeLabel($serviceRequest->type).': '.\App\Models\StudentServiceRequest::statusLabel($serviceRequest->status),
+            $serviceRequest->status === 'rejected' ? 'warning' : 'info', route('student.service-requests.show', $serviceRequest)
+        );
+
         return redirect()
             ->route('staff.service-requests.show', $serviceRequest)
             ->with('success', 'تم تحديث حالة الطلب.');
