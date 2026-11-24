@@ -235,8 +235,10 @@ class ExamDistributionTest extends TestCase
             'pass_percentage' => 50, 'default_weights' => [40, 60], 'weight' => 100, 'distribution' => 'uniform',
         ])->assertSessionHasNoErrors();
 
-        $this->assertEqualsCanonicalizing(
-            [], array_diff(AcademicSetting::pluck('key')->all(), [AcademicSetting::PASS_PERCENTAGE, AcademicSetting::GRADE_SCALE, AcademicSetting::APPEAL_WINDOW_DAYS])
-        );
+        // لا مفتاح إعداد عن الأوزان أو التوزيع (يُحدَّد لكل شعبة فقط)
+        $this->assertSame([], array_values(array_filter(
+            AcademicSetting::pluck('key')->all(),
+            fn ($k) => str_contains($k, 'weight') || str_contains($k, 'distribution')
+        )));
     }
 }

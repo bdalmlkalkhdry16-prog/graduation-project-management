@@ -58,6 +58,12 @@ class StoreServiceRequestRequest extends FormRequest
 
                     return;
                 }
+
+                if ($blocker = app(\App\Services\ProjectEligibility::class)->graduationBlocker($profile)) {
+                    $v->errors()->add('type', 'إفادة التخرج: '.$blocker);
+
+                    return;
+                }
             }
 
             // التظلم: على مقرر للطالب نفسه له درجة منشورة، وبلا تظلم مفتوح سابق على المقرر ذاته

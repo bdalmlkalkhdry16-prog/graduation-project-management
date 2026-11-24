@@ -59,7 +59,11 @@ class ProjectMemberController extends Controller
             ->with('specialization')
             ->get();
 
-        return view('projects.members.create', compact('project', 'availableStudents'));
+        // من لا يستوفي الشروط الأكاديمية يُعلَّم في القائمة (والفرض الفعلي عند الحفظ)
+        $eligibility = app(\App\Services\ProjectEligibility::class);
+        $ineligible = $availableStudents->mapWithKeys(fn ($s) => [$s->id => $eligibility->reasons($s, $project)])->filter();
+
+        return view('projects.members.create', compact('project', 'availableStudents', 'ineligible'));
     }
 
     /**
@@ -102,6 +106,20 @@ class ProjectMemberController extends Controller
             }
         }
 
+        // أهلية الطالب وفق الإعدادات الأكاديمية؛ للمدير فقط استثناء بسبب مسجَّل
+        $student = User::findOrFail($request->student_id);
+        $reasons = app(\App\Services\ProjectEligibility::class)->reasons($student, $project);
+        $override = null;
+        if ($reasons) {
+            $override = trim((string) $request->input('override_reason'));
+            $canOverride = auth()->user()->isAdmin() || auth()->user()->hasRole('admin');
+            if (! $canOverride || mb_strlen($override) < 5) {
+                $hint = $canOverride ? ' (للاستثناء اكتب سببًا في حقل الاستثناء)' : '';
+
+                return back()->withInput()->with('error', 'لا يمكن إضافة الطالب: '.implode(' ', $reasons).$hint);
+            }
+        }
+
         $member = ProjectMember::create([
             'project_id' => $project->id,
             'student_id' => $request->student_id,
@@ -110,6 +128,9 @@ class ProjectMemberController extends Controller
         ]);
 
         $this->logActivity('create', 'ProjectMember', $member->id);
+        if ($override) {
+            \App\Models\ActivityLog::log(auth()->id(), 'project_member.eligibility_override', ProjectMember::class, $member->id, null, ['reasons' => $reasons, 'reason' => $override]);
+        }
 
         // إرسال إشعار للطالب المضاف
         $this->sendNotification(
@@ -270,6 +291,14 @@ class ProjectMemberController extends Controller
             return back()->with('error', 'الطالب مسجل بالفعل في هذا المشروع');
         }
 
+        if (in_array($project->status, [Project::STATUS_COMPLETED, Project::STATUS_REJECTED])) {
+            return back()->with('error', 'لا يمكن دعوة أعضاء لمشروع مكتمل أو مرفوض');
+        }
+
+        if ($reasons = app(\App\Services\ProjectEligibility::class)->reasons($student, $project)) {
+            return back()->with('error', 'لا يمكن دعوة الطالب: '.implode(' ', $reasons));
+        }
+
         // إنشاء رمز دعوة
         $inviteCode = \Illuminate\Support\Str::random(32);
 
@@ -324,6 +353,17 @@ class ProjectMemberController extends Controller
             \Illuminate\Support\Facades\Cache::forget("invite_{$code}");
             return redirect()->route('projects.show', $project)
                 ->with('info', 'أنت بالفعل عضو في هذا المشروع');
+        }
+
+        if (in_array($project->status, [Project::STATUS_COMPLETED, Project::STATUS_REJECTED])) {
+            \Illuminate\Support\Facades\Cache::forget("invite_{$code}");
+
+            return redirect()->route('dashboard')->with('error', 'المشروع مكتمل أو مرفوض ولا يقبل أعضاء جددًا');
+        }
+
+        // الأهلية قد تتغير بين الدعوة والقبول، فتُفحص من جديد
+        if ($reasons = app(\App\Services\ProjectEligibility::class)->reasons(auth()->user(), $project)) {
+            return redirect()->route('dashboard')->with('error', 'لا يمكن قبول الدعوة: '.implode(' ', $reasons));
         }
 
         // تحديد الدور (إذا كان أول عضو يصبح قائداً)

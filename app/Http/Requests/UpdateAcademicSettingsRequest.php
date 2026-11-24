@@ -18,6 +18,12 @@ class UpdateAcademicSettingsRequest extends FormRequest
         return [
             'pass_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'appeal_window_days' => ['nullable', 'integer', 'min:1', 'max:365'],
+            'project_min_completed_hours' => ['nullable', 'numeric', 'min:0.5', 'max:1000'],
+            'project_min_level' => ['nullable', 'integer', 'min:1', 'max:20'],
+            'project_max_members' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'project_require_fees_settled' => ['nullable', 'boolean'],
+            'project_single_active' => ['nullable', 'boolean'],
+            'graduation_requires_project' => ['nullable', 'boolean'],
             'scale' => ['nullable', 'array', 'max:15'],
             'scale.*.letter' => ['nullable', 'string', 'max:10'],
             'scale.*.min' => ['nullable', 'numeric', 'min:0', 'max:100'],

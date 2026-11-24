@@ -61,6 +61,7 @@
                         <!-- الاسم -->
                         <td class="fw-bold">
                             {{ $member->student->name }}
+                            @include('projects.members._academic', ['student' => $member->student])
                         </td>
 
                         <!-- الرقم -->

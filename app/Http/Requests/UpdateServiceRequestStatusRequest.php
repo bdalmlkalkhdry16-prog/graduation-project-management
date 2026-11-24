@@ -53,6 +53,14 @@ class UpdateServiceRequestStatusRequest extends FormRequest
                 }
             }
 
+            if ($new === StudentServiceRequest::STATUS_APPROVED && $serviceRequest->type === StudentServiceRequest::TYPE_GRADUATION_STATEMENT
+                && $serviceRequest->studentProfile
+                && ($blocker = app(\App\Services\ProjectEligibility::class)->graduationBlocker($serviceRequest->studentProfile))) {
+                $v->errors()->add('status', 'لا يمكن قبول إفادة التخرج: '.$blocker);
+
+                return;
+            }
+
             if ($new === StudentServiceRequest::STATUS_REJECTED && ! filled($this->input('staff_notes'))) {
                 $v->errors()->add('staff_notes', 'سبب الرفض إلزامي في ملاحظات الموظف.');
             }

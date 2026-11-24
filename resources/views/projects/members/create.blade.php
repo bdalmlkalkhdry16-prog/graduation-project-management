@@ -18,11 +18,18 @@
                                 <select name="student_id" class="form-select @error('student_id') is-invalid @enderror" required>
                                     <option value="">اختر الطالب</option>
                                     @foreach($availableStudents as $student)
-                                        <option value="{{ $student->id }}">{{ $student->name }} ({{ $student->student_id }}) - {{ $student->specialization->name_ar ?? '' }}</option>
+                                        <option value="{{ $student->id }}" @selected(old('student_id') == $student->id)>{{ $student->name }} ({{ $student->student_id }}) - {{ $student->specialization->name_ar ?? '' }}@if (isset($ineligible[$student->id])) — غير مؤهل: {{ implode(' ', $ineligible[$student->id]) }}@endif</option>
                                     @endforeach
                                 </select>
                                 @error('student_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
+
+                            @if (auth()->user()->isAdmin() || auth()->user()->hasRole('admin'))
+                                <div class="mb-3">
+                                    <label class="form-label">استثناء إداري (اختياري)</label>
+                                    <input type="text" name="override_reason" value="{{ old('override_reason') }}" class="form-control" placeholder="سبب إضافة طالب غير مؤهل — اتركه فارغًا إن كان مؤهلًا">
+                                </div>
+                            @endif
 
                             <div class="mb-3">
                                 <label class="form-label">الدور</label>

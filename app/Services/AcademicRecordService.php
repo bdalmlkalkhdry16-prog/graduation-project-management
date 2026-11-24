@@ -85,6 +85,15 @@ class AcademicRecordService
         ];
     }
 
+    /** مجموع الساعات المعتمدة للمقررات الناجح فيها (كل مقرر مرة واحدة حتى لو أُعيد). */
+    public function completedHours(StudentProfile $profile): float
+    {
+        return (float) collect($this->forStudent($profile)['terms'])->flatMap(fn ($t) => $t['courses'])
+            ->filter(fn ($c) => $c['passed'] === true)
+            ->unique(fn ($c) => $c['course']->id)
+            ->sum(fn ($c) => (float) $c['credit_hours']);
+    }
+
     /**
      * نتائج كل تسجيل غير منسحب في شعبة واحدة بنفس قواعد السجل الأكاديمي (للإحصاءات).
      *
