@@ -510,5 +510,12 @@
     </div>
 
 </div>
+<div class="container-fluid mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">الشؤون الأكاديمية والمالية</h5>
+        <a href="{{ route('academic-stats') }}" class="btn btn-sm btn-outline-primary">إحصاءات أكاديمية كاملة</a>
+    </div>
+    @include('stats._overview', ['overview' => $academic])
+</div>
 @include('layouts._academic-links', ['variant' => 'cards'])
 @endsection

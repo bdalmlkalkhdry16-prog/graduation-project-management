@@ -1157,6 +1157,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('academic-stats', [\App\Http\Controllers\AcademicStatsController::class, 'index'])->name('academic-stats');
     Route::get('accounting/reports/fees', [\App\Http\Controllers\Accounting\FeeReportController::class, 'index'])->name('accounting.reports.fees');
     Route::get('accounting/reports/fees/export', [\App\Http\Controllers\Accounting\FeeReportController::class, 'export'])->name('accounting.reports.fees.export');
     Route::get('accounting/fees', [\App\Http\Controllers\Accounting\StudentFeeController::class, 'index'])->name('accounting.fees.index');

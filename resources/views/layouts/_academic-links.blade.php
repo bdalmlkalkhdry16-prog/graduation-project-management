@@ -33,6 +33,7 @@
         $has('service-requests.manageAll') ? ['staff.service-requests.index', 'fa-concierge-bell', 'طلبات الخدمات', 'staff.service-requests.*'] : null,
         $has('results.review') ? ['results.review', 'fa-tasks', 'مراجعة النتائج', 'results.review'] : null,
         $has('results.publish') ? ['results.publish', 'fa-bullhorn', 'نشر النتائج', 'results.publish'] : null,
+        $has('academic-records.viewAll') ? ['academic-stats', 'fa-chart-line', 'إحصاءات أكاديمية', 'academic-stats'] : null,
         \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\StudentFee::class) ? ['accounting.fees.index', 'fa-cash-register', 'رسوم الطلاب والمدفوعات', 'accounting.fees.*'] : null,
         \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\StudentFee::class) ? ['accounting.reports.fees', 'fa-chart-pie', 'تقارير الرسوم', 'accounting.reports.*'] : null,
         \Illuminate\Support\Facades\Gate::allows('viewAny', \App\Models\FeeSchedule::class) ? ['fee-schedules.index', 'fa-tags', 'أسعار الرسوم', 'fee-schedules.*'] : null,

@@ -144,7 +144,9 @@ class DashboardController extends Controller
             'inactive_users' => User::where('is_active', false)->count(),
         ];
 
-        return view('dashboard.admin', compact('stats'));
+        $academic = app(\App\Services\AcademicStatsService::class)->overview();
+
+        return view('dashboard.admin', compact('stats', 'academic'));
     }
 
     /**

@@ -85,6 +85,29 @@ class AcademicRecordService
         ];
     }
 
+    /**
+     * نتائج كل تسجيل غير منسحب في شعبة واحدة بنفس قواعد السجل الأكاديمي (للإحصاءات).
+     *
+     * @return \Illuminate\Support\Collection<int, array>
+     */
+    public function sectionOutcomes(\App\Models\Section $section): \Illuminate\Support\Collection
+    {
+        $scale = AcademicSetting::gradeScale();
+        $passPercentage = AcademicSetting::passPercentage();
+        $section->loadMissing('course', 'academicTerm.academicYear', 'exams');
+
+        $enrollments = Enrollment::where('section_id', $section->id)->where('status', '!=', Enrollment::STATUS_DROPPED)
+            ->with('grades')->get();
+        $rosterExamIds = ExamRosterEntry::whereIn('enrollment_id', $enrollments->pluck('id'))->get()->groupBy('enrollment_id')->map->pluck('exam_id');
+
+        return $enrollments->map(function (Enrollment $e) use ($section, $rosterExamIds, $scale, $passPercentage) {
+            $e->setRelation('section', $section);
+            $e->setRelation('rosterExamIds', $rosterExamIds->get($e->id, collect()));
+
+            return $this->courseRow($e, $scale, $passPercentage);
+        });
+    }
+
     private function courseRow(Enrollment $enrollment, array $scale, ?float $passPercentage): array
     {
         $section = $enrollment->section;
