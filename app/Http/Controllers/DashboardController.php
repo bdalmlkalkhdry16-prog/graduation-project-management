@@ -146,7 +146,9 @@ class DashboardController extends Controller
 
         $academic = app(\App\Services\AcademicStatsService::class)->overview();
 
-        return view('dashboard.admin', compact('stats', 'academic'));
+        $charts = app(\App\Services\DashboardChartsService::class)->forAdmin();
+
+        return view('dashboard.admin', compact('stats', 'academic', 'charts'));
     }
 
     /**

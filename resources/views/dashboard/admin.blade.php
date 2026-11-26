@@ -90,6 +90,8 @@
 
     </div>
 
+    @include('dashboard._admin-charts')
+
     {{-- الهيكل الأكاديمي --}}
     <div class="row g-4 mb-4">
 
