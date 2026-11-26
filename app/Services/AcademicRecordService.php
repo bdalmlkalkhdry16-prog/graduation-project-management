@@ -94,6 +94,18 @@ class AcademicRecordService
             ->sum(fn ($c) => (float) $c['credit_hours']);
     }
 
+    /** مجموع الساعات المعتمدة لمقررات الخطة الدراسية لبرنامج الطالب (كل مقرر مرة واحدة). */
+    public function planHours(StudentProfile $profile): float
+    {
+        if (! $profile->program_id) {
+            return 0.0;
+        }
+
+        return (float) \App\Models\Course::whereIn('id',
+            \App\Models\StudyPlan::whereIn('level_id', \App\Models\Level::where('program_id', $profile->program_id)->select('id'))->select('course_id')
+        )->sum('credit_hours');
+    }
+
     /**
      * نتائج كل تسجيل غير منسحب في شعبة واحدة بنفس قواعد السجل الأكاديمي (للإحصاءات).
      *

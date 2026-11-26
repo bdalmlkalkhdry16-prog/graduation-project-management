@@ -41,9 +41,11 @@ class ProjectEligibility
 
         $minHours = AcademicSetting::number(AcademicSetting::PROJECT_MIN_COMPLETED_HOURS);
         $minLevel = AcademicSetting::number(AcademicSetting::PROJECT_MIN_LEVEL);
+        $minPercent = AcademicSetting::number(AcademicSetting::PROJECT_MIN_COMPLETED_PERCENT);
+        $finalLevel = AcademicSetting::flag(AcademicSetting::PROJECT_REQUIRE_FINAL_LEVEL);
         $needFees = AcademicSetting::flag(AcademicSetting::PROJECT_REQUIRE_FEES_SETTLED);
 
-        if ($minHours === null && $minLevel === null && ! $needFees) {
+        if ($minHours === null && $minLevel === null && $minPercent === null && ! $finalLevel && ! $needFees) {
             return $reasons;
         }
 
@@ -60,6 +62,29 @@ class ProjectEligibility
                 if ($done < $minHours) {
                     $reasons[] = 'الساعات المُنجَزة ('.$this->fmt($done).') أقل من المطلوب ('.$this->fmt($minHours).').';
                 }
+            }
+        }
+
+        if ($minPercent !== null) {
+            $planHours = $this->records->planHours($profile);
+            if (AcademicSetting::passPercentage() === null) {
+                $reasons[] = 'لم تُحدَّد نسبة النجاح في الإعدادات؛ لا يمكن احتساب نسبة الإنجاز.';
+            } elseif ($planHours > 0) {
+                $done = $this->records->completedHours($profile);
+                $pct = $done / $planHours * 100;
+                if ($pct + 1e-9 < $minPercent) {
+                    $reasons[] = 'نسبة الإنجاز من ساعات الخطة ('.$this->fmt(round($pct, 1)).'%) أقل من المطلوب ('.$this->fmt($minPercent).'%).';
+                }
+            } else {
+                $reasons[] = 'لا توجد خطة دراسية بساعات معتمدة لبرنامج الطالب؛ لا يمكن احتساب نسبة الإنجاز.';
+            }
+        }
+
+        if ($finalLevel) {
+            $current = $profile->currentLevel?->level_number;
+            $last = $profile->program_id ? \App\Models\Level::where('program_id', $profile->program_id)->max('level_number') : null;
+            if ($current === null || $last === null || $current < $last) {
+                $reasons[] = 'الانضمام للمشروع من المستوى الأخير في البرنامج (مستواك الحالي: '.($current ?? 'غير محدد').' من '.($last ?? '—').').';
             }
         }
 

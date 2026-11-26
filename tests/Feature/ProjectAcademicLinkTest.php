@@ -239,4 +239,74 @@ class ProjectAcademicLinkTest extends TestCase
         $this->actingAs($this->admin)->get(route('projects.members.create', $this->project))->assertOk()->assertSee('استثناء إداري');
         $this->actingAs($this->supervisor)->get(route('projects.members.create', $this->project))->assertDontSee('استثناء إداري');
     }
+
+    private function passExisting($profile, $course, float $percent = 80): void
+    {
+        $section = $this->makeSection($this->faculty, $course);
+        $enrollment = $this->enroll($profile, $section);
+        $exam = $this->makeExam($section, ['max_score' => 100, 'weight' => 100, 'result_status' => 'published', 'published_at' => now()]);
+        $this->setGrade($exam, $enrollment, $percent);
+    }
+
+    /** @test */
+    public function the_completed_percent_rule_is_measured_against_the_study_plan_hours()
+    {
+        [$user, $profile] = $this->makeStudent();
+        S::put(S::PASS_PERCENTAGE, 50);
+        S::put(S::PROJECT_MIN_COMPLETED_PERCENT, 60);
+        $svc = app(ProjectEligibility::class);
+        \App\Models\StudyPlan::query()->delete(); // الفيكستشر يضع مقررًا في الخطة؛ نبدأ بخطة فارغة
+
+        $this->assertStringContainsString('لا توجد خطة', implode(' ', $svc->reasons($user, $this->project)));
+
+        // makeCourse يضيف المقرر إلى خطة المستوى: 3 + 3 + 4 = 10 ساعات
+        $c1 = $this->makeCourse('PL1', 3);
+        $c2 = $this->makeCourse('PL2', 3);
+        $this->makeCourse('PL3', 4);
+        $this->assertSame(10.0, app(\App\Services\AcademicRecordService::class)->planHours($profile));
+
+        $this->passExisting($profile, $c1);
+        $this->assertStringContainsString('أقل من المطلوب', implode(' ', $svc->reasons($user->fresh(), $this->project)), '3 من 10 = 30%');
+
+        $this->passExisting($profile, $c2);
+        $this->assertSame([], $svc->reasons($user->fresh(), $this->project), '6 من 10 = 60% تكفي (الحد شامل)');
+    }
+
+    /** @test */
+    public function the_final_level_rule_requires_the_last_level_of_the_program()
+    {
+        [$user, $profile] = $this->makeStudent();
+        $last = \App\Models\Level::create(['program_id' => $this->program->id, 'level_number' => 4, 'name' => 'المستوى الأخير']);
+        S::put(S::PROJECT_REQUIRE_FINAL_LEVEL, true);
+
+        $this->assertStringContainsString('المستوى الأخير', implode(' ', app(ProjectEligibility::class)->reasons($user, $this->project)));
+        $profile->update(['current_level_id' => $last->id]);
+        $this->assertSame([], app(ProjectEligibility::class)->reasons($user->fresh(), $this->project));
+    }
+
+    /** @test */
+    public function the_recommended_rules_apply_without_overwriting_admin_choices_and_can_be_reset_by_the_admin()
+    {
+        S::put(S::PROJECT_MAX_MEMBERS, 7);
+        S::applyRecommendedProjectRules(null, overwrite: false);
+        $this->assertSame(7.0, S::number(S::PROJECT_MAX_MEMBERS), 'لا يُستبدل ما ضبطه المدير');
+        $this->assertSame(60.0, S::number(S::PROJECT_MIN_COMPLETED_PERCENT));
+        $this->assertTrue(S::flag(S::PROJECT_REQUIRE_FINAL_LEVEL));
+        $this->assertTrue(S::flag(S::GRADUATION_REQUIRES_PROJECT));
+
+        $this->actingAs($this->admin)->post(route('academic-settings.recommended-project-rules'))->assertSessionHas('success');
+        $this->assertSame(4.0, S::number(S::PROJECT_MAX_MEMBERS));
+
+        $this->actingAs($this->userWithRole('control'))->post(route('academic-settings.recommended-project-rules'))->assertForbidden();
+    }
+
+    /** @test */
+    public function the_data_migration_is_skipped_under_tests_so_tests_stay_neutral()
+    {
+        $this->assertNull(S::number(S::PROJECT_MAX_MEMBERS));
+        $migration = require database_path('migrations/2026_11_24_000000_apply_recommended_graduation_project_rules.php');
+        $migration->up();
+        $this->assertNull(S::number(S::PROJECT_MAX_MEMBERS));
+        $migration->down();
+    }
 }

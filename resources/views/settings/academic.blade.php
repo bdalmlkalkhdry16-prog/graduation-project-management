@@ -23,11 +23,14 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-4"><label class="form-label">أدنى ساعات معتمدة مُنجَزة (نجاح)</label>
                             <input type="number" step="0.5" min="0.5" name="project_min_completed_hours" value="{{ old('project_min_completed_hours', $project['min_hours']) }}" class="form-control"></div>
+                        <div class="col-md-4"><label class="form-label">أدنى نسبة إنجاز من ساعات الخطة (%)</label>
+                            <input type="number" step="1" min="1" max="100" name="project_min_completed_percent" value="{{ old('project_min_completed_percent', $project['min_percent']) }}" class="form-control"></div>
                         <div class="col-md-4"><label class="form-label">أدنى رقم مستوى حالي</label>
                             <input type="number" min="1" name="project_min_level" value="{{ old('project_min_level', $project['min_level']) }}" class="form-control"></div>
                         <div class="col-md-4"><label class="form-label">أقصى عدد أعضاء للمشروع</label>
                             <input type="number" min="1" name="project_max_members" value="{{ old('project_max_members', $project['max_members']) }}" class="form-control"></div>
                     </div>
+                    <div class="form-check mb-2"><input type="hidden" name="project_require_final_level" value="0"><input class="form-check-input" type="checkbox" name="project_require_final_level" value="1" id="pl" @checked(old('project_require_final_level', $project['final_level']))><label class="form-check-label" for="pl">الانضمام من المستوى الأخير في برنامج الطالب</label></div>
                     <div class="form-check mb-2"><input type="hidden" name="project_require_fees_settled" value="0"><input class="form-check-input" type="checkbox" name="project_require_fees_settled" value="1" id="pf" @checked(old('project_require_fees_settled', $project['fees']))><label class="form-check-label" for="pf">اشتراط سداد الرسوم المولَّدة للانضمام لمشروع</label></div>
                     <div class="form-check mb-2"><input type="hidden" name="project_single_active" value="0"><input class="form-check-input" type="checkbox" name="project_single_active" value="1" id="ps" @checked(old('project_single_active', $project['single']))><label class="form-check-label" for="ps">لا يشارك الطالب إلا في مشروع واحد غير مرفوض أو مكتمل</label></div>
                     <div class="form-check mb-3"><input type="hidden" name="graduation_requires_project" value="0"><input class="form-check-input" type="checkbox" name="graduation_requires_project" value="1" id="pg" @checked(old('graduation_requires_project', $project['graduation']))><label class="form-check-label" for="pg">اشتراط مشروع تخرج مكتمل لإفادة التخرج</label></div>
@@ -43,6 +46,12 @@
                         </div>
                     @endfor
                     <button class="btn btn-primary mt-3"><i class="fas fa-save me-1"></i> حفظ</button>
+                </form>
+                <hr>
+                <form method="POST" action="{{ route('academic-settings.recommended-project-rules') }}" onsubmit="return confirm('استبدال قواعد مشاريع التخرج بالقواعد الموصى بها؟')">
+                    @csrf
+                    <p class="small text-muted mb-2">القواعد الموصى بها: المستوى الأخير، إنجاز 60% من ساعات الخطة، سداد الرسوم، حتى 4 أعضاء، مشروع قائم واحد، ومشروع مكتمل لإفادة التخرج.</p>
+                    <button class="btn btn-outline-secondary btn-sm">تطبيق القواعد الموصى بها</button>
                 </form>
             </div>
         </div>

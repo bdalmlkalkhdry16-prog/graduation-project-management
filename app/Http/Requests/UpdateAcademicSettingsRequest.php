@@ -20,6 +20,8 @@ class UpdateAcademicSettingsRequest extends FormRequest
             'appeal_window_days' => ['nullable', 'integer', 'min:1', 'max:365'],
             'project_min_completed_hours' => ['nullable', 'numeric', 'min:0.5', 'max:1000'],
             'project_min_level' => ['nullable', 'integer', 'min:1', 'max:20'],
+            'project_min_completed_percent' => ['nullable', 'numeric', 'min:1', 'max:100'],
+            'project_require_final_level' => ['nullable', 'boolean'],
             'project_max_members' => ['nullable', 'integer', 'min:1', 'max:50'],
             'project_require_fees_settled' => ['nullable', 'boolean'],
             'project_single_active' => ['nullable', 'boolean'],

@@ -22,6 +22,28 @@ class AcademicSetting extends Model
     const PROJECT_MAX_MEMBERS = 'project_max_members';
     const PROJECT_SINGLE_ACTIVE = 'project_single_active';
     const GRADUATION_REQUIRES_PROJECT = 'graduation_requires_project';
+    const PROJECT_MIN_COMPLETED_PERCENT = 'project_min_completed_percent';
+    const PROJECT_REQUIRE_FINAL_LEVEL = 'project_require_final_level';
+
+    /** القواعد الموصى بها لمشاريع التخرج (قرار الوكيل بتفويض المالك؛ قابلة للتعديل كلها من الإعدادات). */
+    const RECOMMENDED_PROJECT_RULES = [
+        self::PROJECT_REQUIRE_FINAL_LEVEL => true,       // الانضمام من المستوى الأخير في البرنامج
+        self::PROJECT_MIN_COMPLETED_PERCENT => 60,       // إنجاز 60% من ساعات الخطة الدراسية على الأقل
+        self::PROJECT_REQUIRE_FEES_SETTLED => true,      // لا انضمام مع رسوم غير مسددة
+        self::PROJECT_MAX_MEMBERS => 4,                  // فريق حتى 4 طلاب
+        self::PROJECT_SINGLE_ACTIVE => true,             // مشروع قائم واحد لكل طالب
+        self::GRADUATION_REQUIRES_PROJECT => true,       // إفادة التخرج تتطلب مشروعًا مكتملًا
+    ];
+
+    /** يضبط القواعد الموصى بها. $overwrite=false يكتب المفقود فقط (لا يمس ما ضبطه المدير). */
+    public static function applyRecommendedProjectRules(?int $userId = null, bool $overwrite = false): void
+    {
+        foreach (self::RECOMMENDED_PROJECT_RULES as $key => $value) {
+            if ($overwrite || ! static::where('key', $key)->exists()) {
+                static::put($key, $value, $userId);
+            }
+        }
+    }
 
     protected $fillable = ['key', 'value', 'updated_by'];
 

@@ -1154,6 +1154,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('academic-settings', [AcademicSettingController::class, 'edit'])->name('academic-settings.edit');
     Route::put('academic-settings', [AcademicSettingController::class, 'update'])->name('academic-settings.update');
+    Route::post('academic-settings/recommended-project-rules', [AcademicSettingController::class, 'applyRecommendedProjectRules'])->name('academic-settings.recommended-project-rules');
 });
 
 Route::middleware('auth')->group(function () {
