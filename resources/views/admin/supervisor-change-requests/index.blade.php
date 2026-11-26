@@ -52,7 +52,7 @@
         margin-bottom: 0.5rem;
     }
     .btn-request {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1f6b36 0%, #14492a 100%);
         border: none;
         border-radius: 0.75rem;
         padding: 0.4rem 1.2rem;
@@ -75,7 +75,7 @@
     }
     .filter-card .form-control:focus,
     .filter-card .form-select:focus {
-        border-color: #667eea;
+        border-color: #1f6b36;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
     }
     .filter-card .btn-filter {

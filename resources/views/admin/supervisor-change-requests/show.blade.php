@@ -11,7 +11,7 @@
         overflow: hidden;
     }
     .detail-card .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1f6b36 0%, #14492a 100%);
         color: white;
         border: none;
         padding: 1.25rem 1.5rem;
@@ -41,7 +41,7 @@
         align-items: center;
         justify-content: center;
         background: #f1f5f9;
-        color: #667eea;
+        color: #1f6b36;
         flex-shrink: 0;
     }
     .detail-item .detail-label {
@@ -77,7 +77,7 @@
         background: #f8fafc;
         border-radius: 0.75rem;
         padding: 1rem 1.25rem;
-        border-right: 4px solid #667eea;
+        border-right: 4px solid #1f6b36;
         margin-top: 0.5rem;
     }
     .feedback-box .feedback-label {
@@ -96,7 +96,7 @@
         padding: 0.5rem 1rem;
     }
     .admin-actions .form-control:focus {
-        border-color: #667eea;
+        border-color: #1f6b36;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
     }
     .btn-approve {
@@ -137,7 +137,7 @@
         transform: translateY(-1px);
     }
     .btn-request {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1f6b36 0%, #14492a 100%);
         border: none;
         border-radius: 0.75rem;
         padding: 0.4rem 1.2rem;
@@ -161,7 +161,7 @@
         font-size: 0.9rem;
     }
     .review-info i {
-        color: #667eea;
+        color: #1f6b36;
     }
 </style>
 @endpush

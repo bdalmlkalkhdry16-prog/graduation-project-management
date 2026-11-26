@@ -11,7 +11,7 @@
         overflow: hidden;
     }
     .request-card .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1f6b36 0%, #14492a 100%);
         color: white;
         border: none;
         padding: 1.25rem 1.5rem;
@@ -39,7 +39,7 @@
         padding: 0.6rem 1rem;
     }
     .form-control:focus, .form-select:focus {
-        border-color: #667eea;
+        border-color: #1f6b36;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
     }
     .form-control.is-invalid, .form-select.is-invalid {
@@ -54,14 +54,14 @@
         background: #f0f4ff;
         border-radius: 0.75rem;
         padding: 1rem 1.25rem;
-        border-right: 4px solid #667eea;
+        border-right: 4px solid #1f6b36;
     }
     .info-box i {
-        color: #667eea;
+        color: #1f6b36;
         margin-left: 0.5rem;
     }
     .btn-submit {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1f6b36 0%, #14492a 100%);
         border: none;
         border-radius: 0.75rem;
         padding: 0.7rem 1.5rem;
@@ -86,7 +86,7 @@
         border: 1px solid #e2e8f0;
     }
     .current-supervisor-display i {
-        color: #667eea;
+        color: #1f6b36;
         margin-left: 0.5rem;
     }
 </style>

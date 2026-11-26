@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة مشاريع التخرج</title>
+    <title>كلية المجتمع عمران — منصة الإدارة الأكاديمية</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -11,7 +11,7 @@
             font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1f6b36 0%, #14492a 100%);
             color: white;
             padding: 100px 0;
         }
@@ -25,7 +25,7 @@
         }
         .btn-custom {
             background: white;
-            color: #667eea;
+            color: #1f6b36;
             border-radius: 2rem;
             padding: 0.75rem 2rem;
             font-weight: bold;
@@ -40,7 +40,7 @@
 <!-- Hero Section -->
 <section class="hero text-center">
     <div class="container">
-        <h1 class="display-4 fw-bold mb-4">نظام إدارة مشاريع التخرج</h1>
+        <h1 class="display-4 fw-bold mb-4">كلية المجتمع عمران — منصة الإدارة الأكاديمية</h1>
         <p class="lead mb-5">منصة متكاملة لإدارة مشاريع التخرج في كليات المجتمع</p>
         <div class="d-flex gap-3 justify-content-center">
             @guest
@@ -101,7 +101,7 @@
 <!-- Footer -->
 <footer class="bg-dark text-white-50 py-4">
     <div class="container text-center">
-        <p class="mb-0">&copy; {{ date('Y') }} نظام إدارة مشاريع التخرج. جميع الحقوق محفوظة</p>
+        <p class="mb-0">&copy; {{ date('Y') }} كلية المجتمع عمران — منصة الإدارة الأكاديمية. جميع الحقوق محفوظة</p>
     </div>
 </footer>
 

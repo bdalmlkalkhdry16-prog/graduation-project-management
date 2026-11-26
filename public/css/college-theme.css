@@ -1,0 +1,36 @@
+/* هوية كلية المجتمع عمران — أخضر رسمي مشتق من الشعار */
+:root{
+  --college-green:#1f6b36;
+  --college-green-dark:#14492a;
+  --college-green-deep:#0d3320;
+  --college-green-soft:#e8f2ea;
+  --college-gold:#b8962e;
+  --college-cream:#f7f3dc;
+  --college-red:#b3202a;
+  --bs-primary:#1f6b36;
+  --bs-primary-rgb:31,107,54;
+  --bs-link-color:#1f6b36;
+  --bs-link-color-rgb:31,107,54;
+  --bs-link-hover-color:#14492a;
+  --bs-link-hover-color-rgb:20,73,42;
+  --bs-success:#2e8b4a;
+  --bs-success-rgb:46,139,74;
+}
+.text-primary{color:var(--college-green)!important}
+.bg-primary{background-color:var(--college-green)!important}
+.border-primary{border-color:var(--college-green)!important}
+.page-item.active .page-link{background-color:var(--college-green);border-color:var(--college-green)}
+.page-link{color:var(--college-green)}
+.form-control:focus,.form-select:focus{border-color:var(--college-green);box-shadow:0 0 0 .2rem rgba(31,107,54,.15)}
+.form-check-input:checked{background-color:var(--college-green);border-color:var(--college-green)}
+.progress-bar{background-color:var(--college-green)}
+.nav-tabs .nav-link.active{color:var(--college-green);border-bottom:2px solid var(--college-gold)}
+.college-logo{display:block;margin:0 auto}
+/* بطاقات الإحصاء: ألوان رسمية متناسقة مع الشعار */
+.stat-card{background:linear-gradient(135deg,#1f6b36,#14492a)}
+.stat-card.bg-success{background:linear-gradient(135deg,#2e8b4a,#1f6b36)!important}
+.stat-card.bg-info{background:linear-gradient(135deg,#2f7f86,#1d5560)!important}
+.stat-card.bg-warning{background:linear-gradient(135deg,#c9a431,#9a7b1c)!important;color:#fff!important}
+.stat-card.bg-danger{background:linear-gradient(135deg,#b3202a,#841820)!important}
+.card{border-radius:.75rem}
+.table thead th{background:#e8f2ea;color:#14492a;border-bottom:2px solid #b8962e}

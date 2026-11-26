@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'نظام إدارة مشاريع التخرج')</title>
+    <title>@yield('title', 'كلية المجتمع عمران')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
 
     <!-- Bootstrap 5 RTL -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="{{ asset('css/college-theme.css') }}" rel="stylesheet">
     
     <!-- Font Awesome (رئيسي + احتياطي) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -34,14 +36,14 @@
 
         body {
             font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f8;
+            background-color: #f3f6f1;
             overflow-x: hidden;
         }
 
         /* ========== القائمة الجانبية المحسّنة ========== */
         .sidebar {
             min-height: 100vh;
-            background: linear-gradient(135deg, #2c3e66 0%, #1a2a4f 100%);
+            background: linear-gradient(180deg, #14492a 0%, #0d3320 100%);
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             z-index: 1020;
@@ -70,6 +72,8 @@
             color: white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
+        .sidebar .nav-group-title{color:#e3d28a;font-size:.75rem;font-weight:700;letter-spacing:.5px;padding:.9rem 1.2rem .25rem;margin-top:.3rem;border-top:1px solid rgba(255,255,255,.08)}
+        .sidebar .nav-link.active{border-right:3px solid #b8962e}
         .sidebar-header {
             padding: 1.5rem 1rem;
             text-align: center;
@@ -96,11 +100,11 @@
             background: none;
             border: none;
             font-size: 1.5rem;
-            color: #2c3e66;
+            color: #14492a;
             transition: 0.2s;
         }
         .sidebar-toggle:hover {
-            color: #667eea;
+            color: #1f6b36;
             transform: scale(1.05);
         }
 
@@ -134,7 +138,8 @@
             font-weight: 600;
         }
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1f6b36 0%, #14492a 100%);
+            border-bottom: 3px solid #b8962e;
             color: white;
             border-radius: 1.25rem;
             overflow: hidden;
@@ -168,27 +173,27 @@
             transition: all 0.2s;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #5a67d8 100%);
+            background: linear-gradient(135deg, #2a7d41 0%, #1f6b36 100%);
             border: none;
         }
         .btn-primary:hover {
-            background: linear-gradient(135deg, #5a67d8 0%, #4c51bf 100%);
+            background: linear-gradient(135deg, #1f6b36 0%, #14492a 100%);
             transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(90, 103, 216, 0.3);
+            box-shadow: 0 6px 14px rgba(31, 107, 54, 0.3);
         }
         .btn-outline-primary {
-            border-color: #667eea;
-            color: #667eea;
+            border-color: #1f6b36;
+            color: #1f6b36;
         }
         .btn-outline-primary:hover {
-            background: #667eea;
-            border-color: #667eea;
+            background: #1f6b36;
+            border-color: #1f6b36;
             color: white;
         }
 
         /* ========== الجداول ========== */
         .table {
-            --bs-table-hover-bg: rgba(102, 126, 234, 0.05);
+            --bs-table-hover-bg: rgba(31, 107, 54, 0.06);
         }
         .table th {
             font-weight: 600;
@@ -311,8 +316,9 @@
         <!-- Sidebar -->
         <div class="col-md-3 col-lg-2 px-0 sidebar" id="sidebar">
             <div class="sidebar-header text-center py-4">
-                <h4 class="text-white mb-0 fw-bold">نظام المشاريع</h4>
-                <p class="text-white-50 small mb-0 mt-1">إدارة مشاريع التخرج</p>
+                <img src="{{ asset('images/logo.png') }}" alt="شعار الكلية" width="72" class="college-logo mb-2">
+                <h5 class="text-white mb-0 fw-bold">كلية المجتمع عمران</h5>
+                <p class="small mb-0 mt-1" style="color:#e3d28a">نظام الإدارة الأكاديمية</p>
             </div>
             <nav class="nav flex-column px-3">
                 @include('layouts.sidebar')
