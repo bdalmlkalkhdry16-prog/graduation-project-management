@@ -74,6 +74,13 @@
         }
         .sidebar .nav-group-title{color:#e3d28a;font-size:.75rem;font-weight:700;letter-spacing:.5px;padding:.9rem 1.2rem .25rem;margin-top:.3rem;border-top:1px solid rgba(255,255,255,.08)}
         .sidebar .nav-link.active{border-right:3px solid #b8962e}
+        .sidebar .nav-group-toggle{position:relative;font-weight:600}
+        .sidebar .nav-group-toggle .chev{position:absolute;left:14px;top:50%;margin:-6px 0 0;width:auto;font-size:.7rem;transition:transform .2s}
+        .sidebar .nav-group-toggle[aria-expanded="true"] .chev{transform:rotate(180deg)}
+        .sidebar .nav-group-toggle.open{color:#fff}
+        .sidebar .nav-sub{margin:0 .5rem .3rem;padding-right:.4rem;border-right:2px solid rgba(184,150,46,.45)}
+        .sidebar .nav-sub .nav-link{padding:.5rem 1rem;font-size:.9rem;margin:.1rem 0}
+        .sidebar .nav-link.active{background:#2a7d41;color:#fff}
         .sidebar-header {
             padding: 1.5rem 1rem;
             text-align: center;
@@ -87,24 +94,26 @@
 
         /* ========== شريط التنقل العلوي ========== */
         .navbar-top {
-            background: white;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 3px solid #b8962e;
             padding: 0.75rem 1.5rem;
             position: sticky;
             top: 0;
             z-index: 1010;
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
+            background: linear-gradient(90deg, #0d3320 0%, #14492a 100%);
         }
+        .navbar-top .text-secondary, .navbar-top .text-dark, .navbar-top .btn-link { color: #fff !important; }
+        .navbar-top .dropdown-menu .text-dark, .navbar-top .dropdown-menu .dropdown-item { color: #212529 !important; }
+        .navbar-top .dropdown-menu .text-danger { color: #dc3545 !important; }
+        .navbar-top .dropdown-menu .text-secondary, .navbar-top .dropdown-menu .btn-link { color: inherit !important; }
         .sidebar-toggle {
             background: none;
             border: none;
             font-size: 1.5rem;
-            color: #14492a;
+            color: #fff;
             transition: 0.2s;
         }
         .sidebar-toggle:hover {
-            color: #1f6b36;
+            color: #e3d28a;
             transform: scale(1.05);
         }
 

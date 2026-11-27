@@ -1,108 +1,95 @@
 @auth
     @php
         $user = auth()->user();
+        $r = fn (string $route, string $icon, string $label, string $pattern) => [$route, $icon, $label, $pattern];
+
+        $groups = [];
+        $add = function (string $title, string $icon, array $items) use (&$groups) {
+            if ($items === []) return;
+            $groups[$title]['icon'] = $icon;
+            $groups[$title]['items'] = array_merge($groups[$title]['items'] ?? [], $items);
+        };
+
+        // 1) الهيكل الأكاديمي (المدير)
+        if ($user->isAdmin()) {
+            $add('إدارة الهيكل الأكاديمي', 'fa-layer-group', [
+                $r('admin.colleges.index', 'fa-university', 'الكليات', 'admin.colleges.*'),
+                $r('admin.departments.index', 'fa-building', 'الأقسام', 'admin.departments.*'),
+                $r('admin.specializations.index', 'fa-graduation-cap', 'التخصصات', 'admin.specializations.*'),
+                $r('admin.academic-years.index', 'fa-calendar-alt', 'السنوات الأكاديمية', 'admin.academic-years.*'),
+            ]);
+        }
+
+        // 2) وحدات النظام الأكاديمي حسب الصلاحيات
+        foreach (\App\Support\NavLinks::academic($user) as [$route, $icon, $label, $pattern, $grp]) {
+            $groupIcons = [
+                'الشؤون الأكاديمية' => 'fa-book-reader', 'شؤون الطلاب' => 'fa-users', 'الجداول الدراسية' => 'fa-calendar-week',
+                'الاختبارات والنتائج' => 'fa-clipboard-list', 'الخدمات الإلكترونية' => 'fa-th-large', 'الإدارة المالية' => 'fa-coins',
+                'التقارير والإحصائيات' => 'fa-chart-bar', 'إعدادات النظام' => 'fa-cog',
+            ];
+            $add($grp, $groupIcons[$grp] ?? 'fa-folder', [[$route, $icon, $label, $pattern]]);
+        }
+
+        // 3) مشاريع التخرج (حسب الدور)
+        if ($user->isAdmin()) {
+            $add('مشاريع التخرج', 'fa-project-diagram', [
+                $r('projects.index', 'fa-project-diagram', 'المشاريع', 'projects.*'),
+                $r('projects.archive', 'fa-archive', 'أرشيف المشاريع', 'projects.archive'),
+                $r('evaluations.index', 'fa-star', 'سجل التقييمات', 'evaluations.index'),
+                $r('supervisor-requests.index', 'fa-exchange-alt', 'طلبات تغيير المشرف', 'supervisor-requests.*'),
+            ]);
+            $add('التقارير والإحصائيات', 'fa-chart-bar', [$r('admin.reports.index', 'fa-chart-bar', 'التقارير', 'admin.reports.*')]);
+            $add('إعدادات النظام', 'fa-cog', [$r('admin.users.index', 'fa-users', 'المستخدمين', 'admin.users.*')]);
+        } elseif ($user->isSupervisor()) {
+            $add('مشاريع التخرج', 'fa-project-diagram', [
+                $r('projects.index', 'fa-project-diagram', 'المشاريع', 'projects.*'),
+                $r('projects.pending_review', 'fa-clock', 'قيد المراجعة', 'projects.pending_review'),
+                $r('defense.schedule', 'fa-calendar-alt', 'جدول المناقشات', 'defense.schedule'),
+                $r('projects.archive', 'fa-archive', 'أرشيف المشاريع', 'projects.archive'),
+                $r('evaluations.index', 'fa-star', 'سجل التقييمات', 'evaluations.index'),
+            ]);
+        } elseif ($user->isStudent()) {
+            $add('مشاريع التخرج', 'fa-project-diagram', [
+                $r('projects.index', 'fa-project-diagram', 'مشاريعي', 'projects.*'),
+                $r('projects.create', 'fa-plus-circle', 'مشروع جديد', 'projects.create'),
+                $r('development-requests.index', 'fa-code-branch', 'طلبات التطوير', 'development-requests.*'),
+                $r('supervisor-requests.index', 'fa-exchange-alt', 'طلبات تغيير المشرف', 'supervisor-requests.*'),
+                $r('projects.archive', 'fa-archive', 'أرشيف المشاريع', 'projects.archive'),
+                $r('evaluations.index', 'fa-star', 'سجل تقييماتي', 'evaluations.index'),
+            ]);
+        }
+
+        $order = ['إدارة الهيكل الأكاديمي', 'شؤون الطلاب', 'الشؤون الأكاديمية', 'الجداول الدراسية', 'الاختبارات والنتائج',
+            'الخدمات الإلكترونية', 'الإدارة المالية', 'مشاريع التخرج', 'التقارير والإحصائيات', 'إعدادات النظام'];
+        $ordered = [];
+        foreach ($order as $t) { if (isset($groups[$t])) $ordered[$t] = $groups[$t]; }
+        foreach ($groups as $t => $g) { $ordered[$t] ??= $g; }
     @endphp
 
-    @if($user->isAdmin())
-        <!-- مسارات المدير -->
-        <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <i class="fas fa-tachometer-alt"></i> لوحة التحكم
-        </a>
-        <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-            <i class="fas fa-users"></i> المستخدمين
-        </a>
-      
-        <a href="{{ route('admin.colleges.index') }}" class="nav-link {{ request()->routeIs('admin.colleges.*') ? 'active' : '' }}">
-            <i class="fas fa-university"></i> الكليات
-        </a>
-        <a href="{{ route('admin.departments.index') }}" class="nav-link {{ request()->routeIs('admin.departments.*') ? 'active' : '' }}">
-            <i class="fas fa-building"></i> الأقسام
-        </a>
-        <a href="{{ route('admin.specializations.index') }}" class="nav-link {{ request()->routeIs('admin.specializations.*') ? 'active' : '' }}">
-            <i class="fas fa-graduation-cap"></i> التخصصات
-        </a>
-        <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
-            <i class="fas fa-project-diagram"></i> المشاريع
-        </a>
-        <a href="{{ route('projects.archive') }}" class="nav-link {{ request()->routeIs('projects.archive') ? 'active' : '' }}">
-            <i class="fas fa-archive"></i> أرشيف المشاريع
-        </a>
-      
-        <a href="{{ route('evaluations.index') }}" class="nav-link {{ request()->routeIs('evaluations.index') ? 'active' : '' }}">
-            <i class="fas fa-star"></i> سجل التقييمات
-        </a>
-          <a href="{{ route('admin.academic-years.index') }}" class="nav-link">
-    <i class="fas fa-calendar-alt"></i> السنوات الأكاديمية
-</a>
-          <a href="{{ route('supervisor-requests.index') }}" class="nav-link {{ request()->routeIs('supervisor-requests.*') ? 'active' : '' }}">
-    <i class="fas fa-exchange-alt"></i> طلبات تغيير المشرف
-</a>
+    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+        <i class="fas fa-home"></i> لوحة التحكم
+    </a>
 
-        <a href="{{ route('admin.reports.index') }}" class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-            <i class="fas fa-chart-bar"></i> التقارير
+    @foreach ($ordered as $title => $g)
+        @php
+            $open = collect($g['items'])->contains(fn ($i) => request()->routeIs($i[3]));
+            $gid = 'nav-g-' . $loop->index;
+        @endphp
+        <a href="#{{ $gid }}" class="nav-link nav-group-toggle {{ $open ? 'open' : '' }}" data-bs-toggle="collapse"
+           aria-expanded="{{ $open ? 'true' : 'false' }}">
+            <i class="fas {{ $g['icon'] }}"></i> {{ $title }}
+            <i class="fas fa-chevron-down chev"></i>
         </a>
-        <a href="{{ route('help') }}" class="nav-link">
-            <i class="fas fa-question-circle"></i> دليل الاستخدام
-        </a>
+        <div class="collapse nav-sub {{ $open ? 'show' : '' }}" id="{{ $gid }}">
+            @foreach ($g['items'] as [$route, $icon, $label, $pattern])
+                <a href="{{ route($route) }}" class="nav-link {{ request()->routeIs($pattern) ? 'active' : '' }}">
+                    <i class="fas {{ $icon }}"></i> {{ $label }}
+                </a>
+            @endforeach
+        </div>
+    @endforeach
 
-    @elseif($user->isSupervisor())
-        <!-- مسارات المشرف -->
-        <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <i class="fas fa-tachometer-alt"></i> لوحة التحكم
-        </a>
-        <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
-            <i class="fas fa-project-diagram"></i> المشاريع
-        </a>
-        <a href="{{ route('projects.pending_review') }}" class="nav-link">
-            <i class="fas fa-clock"></i> قيد المراجعة
-        </a>
-        <a href="{{ route('defense.schedule') }}" class="nav-link">
-            <i class="fas fa-calendar-alt"></i> جدول المناقشات
-        </a>
-        <a href="{{ route('projects.archive') }}" class="nav-link {{ request()->routeIs('projects.archive') ? 'active' : '' }}">
-            <i class="fas fa-archive"></i> أرشيف المشاريع
-        </a>
-        <a href="{{ route('evaluations.index') }}" class="nav-link {{ request()->routeIs('evaluations.index') ? 'active' : '' }}">
-            <i class="fas fa-star"></i> سجل التقييمات
-        </a>
-        <a href="{{ route('help') }}" class="nav-link">
-            <i class="fas fa-question-circle"></i> دليل الاستخدام
-        </a>
-
-    @elseif($user->isStudent())
-        <!-- مسارات الطالب -->
-        <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <i class="fas fa-tachometer-alt"></i> لوحة التحكم
-        </a>
-        <a href="{{ route('projects.index') }}" class="nav-link {{ request()->routeIs('projects.*') ? 'active' : '' }}">
-            <i class="fas fa-project-diagram"></i> مشاريعي
-        </a>
-        <a href="{{ route('projects.create') }}" class="nav-link">
-            <i class="fas fa-plus-circle"></i> مشروع جديد
-        </a>
-        <a href="{{ route('development-requests.index') }}" class="nav-link {{ request()->routeIs('development-requests.*') ? 'active' : '' }}">
-            <i class="fas fa-code-branch"></i> طلبات التطوير
-        </a>
-        <a href="{{ route('supervisor-requests.index') }}" class="nav-link {{ request()->routeIs('supervisor-requests.*') ? 'active' : '' }}">
-    <i class="fas fa-exchange-alt"></i> طلبات تغيير المشرف
-</a>
-        <a href="{{ route('projects.archive') }}" class="nav-link {{ request()->routeIs('projects.archive') ? 'active' : '' }}">
-            <i class="fas fa-archive"></i> أرشيف المشاريع
-        </a>
-        <a href="{{ route('evaluations.index') }}" class="nav-link {{ request()->routeIs('evaluations.index') ? 'active' : '' }}">
-            <i class="fas fa-star"></i> سجل تقييماتي
-        </a>
-        <a href="{{ route('help') }}" class="nav-link">
-            <i class="fas fa-question-circle"></i> دليل الاستخدام
-        </a>
-    @endif
-
-    {{-- مستخدمون بأدوار أكاديمية/إدارية جديدة (موظف، مدرس، محاسب...) لا تغطيهم الكتل أعلاه --}}
-    @if(! $user->isAdmin() && ! $user->isSupervisor() && ! $user->isStudent())
-        <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-            <i class="fas fa-tachometer-alt"></i> لوحة التحكم
-        </a>
-    @endif
-
-    @include('layouts._academic-links', ['variant' => 'sidebar'])
+    <a href="{{ route('help') }}" class="nav-link mt-2">
+        <i class="fas fa-question-circle"></i> دليل الاستخدام
+    </a>
 @endauth
